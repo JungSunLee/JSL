@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="7pt"
+        android:text="ReadyQTV (LIVE)"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <HorizontalScrollView
+        android:id="@+id/horizontalScrollView1"
+        android:layout_width="match_parent"
+        android:layout_height="380dp" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal" >
+
+            <Button
+                android:id="@+id/button_sbs"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="5dp"
+                android:layout_marginTop="90dp"
+                android:background="@drawable/channel_select1"
+                android:text="sbs" />
+
+            <Button
+                android:id="@+id/button_kbs1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="5dp"
+                android:layout_marginTop="90dp"
+                android:background="@drawable/channel_select1"
+                android:text="kbs1" />
+
+            <Button
+                android:id="@+id/button_kbs2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="5dp"
+                android:layout_marginTop="90dp"
+                android:background="@drawable/channel_select1"
+                android:text="kbs2" />
+
+            <Button
+                android:id="@+id/button_mbs"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="5dp"
+                android:layout_marginTop="90dp"
+                android:background="@drawable/channel_select1"
+                android:text="mbc" />
+
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <include
+        android:id="@+id/menutabbutton"
+        android:layout_height="wrap_content"
+        layout="@layout/activity_tabbutton" />
+
+</LinearLayout>
