@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:background="@drawable/game01_bar"
+        android:orientation="vertical" >
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="270dp"
+        android:layout_height="330dp"
+        android:layout_marginLeft="25dp"
+        android:layout_marginTop="35dp"
+        android:background="@drawable/quiz_background"
+        android:orientation="vertical" >
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <ImageView
+                android:id="@+id/imageView1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/channel_select_extra" />
+
+            <TextView
+                android:id="@+id/textView1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="75dp"
+                android:text="TV : ABC[Samsung VS SK]"
+                android:textColor="#000000"
+                android:textSize="15dp"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="135dp"
+                android:layout_marginTop="28dp"
+                android:text="18:00pm - 20:00pm"
+                android:textSize="13dp"
+                android:textColor="#696969"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        </FrameLayout>
+
+        <FrameLayout
+            android:layout_width="250dp"
+            android:layout_height="100dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="0dp"
+            android:background="@drawable/quiz_ask01" >
+
+            <ProgressBar
+                android:id="@+id/progressBar_quiz"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="195dp"
+                android:layout_height="10dp"
+                android:layout_marginLeft="50dp"
+                android:layout_marginTop="74dp"
+                android:max="100"
+                android:progress="0"
+                 />
+
+            <TextView
+                android:id="@+id/textView1_quiz"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="55dp"
+                android:layout_marginTop="25dp"
+                android:text="손아섭 선수가 친 공의 낙구 지점은 어디인가?"
+                android:textSize="13dp"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textColor="#000000" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" 
+            android:background="@drawable/ball_background">
+
+            <Button
+                android:id="@+id/button_home"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="70dp"
+                android:layout_height="50dp"
+                android:layout_marginTop="120dp"
+                android:layout_marginLeft="102dp"
+                android:background="@drawable/my_button1"
+                android:text="H" 
+                android:textSize="30dp"/>
+
+            <Button
+                android:id="@+id/button_firstbase"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="70dp"
+                android:layout_height="50dp"
+                android:layout_marginTop="80dp"
+                android:layout_marginLeft="155dp"  
+                android:background="@drawable/my_button1"
+                android:text="1st" 
+                android:textSize="30dp"/>
+
+            <Button
+                android:id="@+id/button_thirdbase"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="70dp"
+                android:layout_height="50dp"
+                android:layout_marginTop="80dp"
+                android:layout_marginLeft="50dp"
+                android:background="@drawable/my_button1"
+                android:text="3d" 
+                android:textSize="30dp"/>
+
+            <Button
+                android:id="@+id/button_secondbase"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="70dp"
+                android:layout_height="50dp"
+                android:layout_marginLeft="103dp"
+                android:layout_marginTop="40dp"
+                android:background="@drawable/my_button1"
+                android:text="2nd" 
+                android:textSize="30dp"/>
+
+            <Button
+                android:id="@+id/button_out"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="70dp"
+                android:layout_height="50dp"
+                android:layout_marginLeft="40dp"
+                android:layout_marginTop="15dp"
+                android:background="@drawable/my_button1"
+                android:text="OUT" 
+                android:textSize="30dp"/>
+
+            <Button
+                android:id="@+id/button_homerun"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="70dp"
+                android:layout_height="50dp"
+                android:layout_marginLeft="160dp"
+                android:layout_marginTop="15dp"
+                android:background="@drawable/my_button1"
+                android:text="H.R." 
+                android:textSize="30dp"/>
+        
+        </FrameLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/ad1"
+        android:orientation="vertical" >
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="450dp"
+        android:background="@drawable/mainbackground2"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/textView1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="20dp"
+            android:text="Live TV"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <FrameLayout
+                android:layout_width="140dp"
+                android:layout_height="150dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginLeft="15dp">
+
+                <Button
+                    android:id="@+id/button_kbs1"
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    android:layout_marginLeft="1dp"
+                    android:background="@drawable/chungdamall" />
+
+                <ImageView
+                    android:id="@+id/imageView1"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:src="@drawable/channel_select_extra_kbs" />
+
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="140dp"
+                android:layout_height="150dp" 
+                android:layout_marginTop="20dp"
+                android:layout_marginLeft="165dp" >
+
+               <Button
+                    android:id="@+id/button_sbs"
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    android:layout_marginLeft="1dp"
+                    android:background="@drawable/runningman" />
+
+               <ImageView
+                   android:id="@+id/imageView2"
+                   android:layout_width="50dp"
+                   android:layout_height="50dp"
+                   android:src="@drawable/channel_select_extra_sbs" />
+
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="140dp"
+                android:layout_height="150dp" 
+                android:layout_marginTop="185dp"
+                android:layout_marginLeft="15dp">
+
+                <Button
+                    android:id="@+id/button_kbs2"
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    android:layout_marginLeft="1dp"
+                    android:background="@drawable/happytogether" />
+
+                <ImageView
+                    android:id="@+id/imageView3"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:src="@drawable/channel_select_extra_kbs" />
+
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="140dp"
+                android:layout_height="150dp" 
+                android:layout_marginTop="185dp"
+                android:layout_marginLeft="165dp">
+
+                <Button
+                    android:id="@+id/button_mbc"
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    android:layout_marginLeft="1dp"
+                    android:background="@drawable/baseball" />
+
+                <ImageView
+                    android:id="@+id/imageView4"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:src="@drawable/channel_select_extra_mbc" />
+
+            </FrameLayout>      
+
+</FrameLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <include
+            android:id="@+id/menutabbutton"
+            android:layout_height="wrap_content"
+            layout="@layout/activity_tabbutton" />
+    </LinearLayout>
+
+</LinearLayout>
