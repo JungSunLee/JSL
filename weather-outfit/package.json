@@ -1,0 +1,11 @@
+{
+  "name": "weather-outfit",
+  "private": true,
+  "workspaces": ["packages/*", "server", "app"],
+  "scripts": {
+    "test": "npm run test -w @wo/core && npm run test -w server",
+    "typecheck": "npm run typecheck -w @wo/core && npm run typecheck -w server && npm run typecheck -w app",
+    "dev:server": "npm run dev -w server",
+    "dev:app": "npm run start -w app"
+  }
+}
