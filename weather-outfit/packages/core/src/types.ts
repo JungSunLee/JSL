@@ -58,6 +58,21 @@ export type HealthCondition =
 
 export type Activity = 'indoor' | 'commute' | 'outdoor';
 
+export type BodyType = 'slim' | 'average' | 'muscular' | 'heavy';
+
+export type Sex = 'female' | 'male';
+
+/** 로그인 사용자의 본인 프로필 (서버에 저장) */
+export interface UserProfile {
+  birthYear: number;
+  sex?: Sex;
+  heightCm?: number;
+  weightKg?: number;
+  bodyType: BodyType;
+  sensitivity: ThermalSensitivity;
+  activity: Activity;
+}
+
 export interface FamilyMember {
   id: string;
   name: string;
@@ -68,6 +83,9 @@ export interface FamilyMember {
   activity: Activity;
   /** 건강앱 연동 또는 수동 입력 체온 (℃). 37.5 이상이면 보온 우선 */
   bodyTempC?: number;
+  heightCm?: number;
+  weightKg?: number;
+  bodyType?: BodyType;
   emoji?: string;
 }
 

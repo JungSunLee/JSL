@@ -34,6 +34,22 @@ export class Tokens {
       .sign(this.key);
   }
 
+  async signAdmin(email: string): Promise<string> {
+    return new SignJWT({ role: 'admin' })
+      .setProtectedHeader({ alg: 'HS256' })
+      .setSubject(email)
+      .setIssuedAt()
+      .setExpirationTime('12h')
+      .setAudience('admin')
+      .sign(this.key);
+  }
+
+  async verifyAdmin(token: string): Promise<string> {
+    const { payload } = await jwtVerify(token, this.key, { audience: 'admin' });
+    if (payload.role !== 'admin' || !payload.sub) throw new Error('not admin');
+    return payload.sub;
+  }
+
   async verifyAccess(token: string): Promise<string> {
     const { payload } = await jwtVerify(token, this.key, { audience: 'app' });
     if (!payload.sub) throw new Error('no subject');

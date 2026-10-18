@@ -15,6 +15,7 @@ import type {
   FamilyMember,
   OutfitItem,
   OutfitRecommendation,
+  UserProfile,
   WeatherSnapshot,
 } from './types';
 
@@ -53,6 +54,52 @@ const AGE_ADJUST: Record<AgeGroup, Adjustment | null> = {
   elder: { delta: -3, reason: '75세 이상은 체온 유지가 어려워 두 단계 따뜻하게' },
 };
 
+export function bmi(heightCm?: number, weightKg?: number): number | null {
+  if (!heightCm || !weightKg) return null;
+  const m = heightCm / 100;
+  return Math.round((weightKg / (m * m)) * 10) / 10;
+}
+
+/**
+ * 체형 보정: 체지방·근육량이 적을수록 열을 빨리 잃어 더 춥게 느낀다.
+ * 아동은 BMI 기준이 달라 성인(19세 이상)에게만 BMI를 적용하고, 그 외에는 선택한 체형을 쓴다.
+ */
+function bodyAdjustment(m: FamilyMember, now: Date): Adjustment | null {
+  const index = ageOf(m.birthYear, now) >= 19 ? bmi(m.heightCm, m.weightKg) : null;
+  if (index != null) {
+    if (index < 18.5) return { delta: -1, reason: `BMI ${index} — 마른 체형은 열을 빨리 잃어 조금 더 따뜻하게` };
+    if (index >= 25) return { delta: 1, reason: `BMI ${index} — 열이 잘 빠지지 않아 조금 가볍게` };
+    return null;
+  }
+  switch (m.bodyType) {
+    case 'slim':
+      return { delta: -1, reason: '마른 체형이라 조금 더 따뜻하게' };
+    case 'heavy':
+      return { delta: 1, reason: '체격이 있어 조금 가볍게' };
+    case 'muscular':
+      return { delta: 0.5, reason: '근육량이 많아 열이 잘 나요' };
+    default:
+      return null;
+  }
+}
+
+/** 로그인 사용자 프로필 → 추천 엔진 입력 */
+export function memberFromProfile(id: string, name: string, p: UserProfile): FamilyMember {
+  return {
+    id,
+    name,
+    relation: 'me',
+    birthYear: p.birthYear,
+    sensitivity: p.sensitivity,
+    activity: p.activity,
+    conditions: [],
+    heightCm: p.heightCm,
+    weightKg: p.weightKg,
+    bodyType: p.bodyType,
+    emoji: p.sex === 'male' ? '🧑' : p.sex === 'female' ? '👩' : '🙂',
+  };
+}
+
 /** 개인 체감온도 = 체감온도 + Σ보정값 (음수일수록 더 춥게 느낌) */
 export function personalAdjustments(m: FamilyMember, baseFeels: number, now: Date = new Date()): Adjustment[] {
   const adj: Adjustment[] = [];
@@ -66,6 +113,9 @@ export function personalAdjustments(m: FamilyMember, baseFeels: number, now: Dat
       reason: d < 0 ? `추위를 잘 타서 ${-d}℃ 더 춥게 계산했어요` : `더위를 잘 타서 ${d}℃ 더 덥게 계산했어요`,
     });
   }
+
+  const body = bodyAdjustment(m, now);
+  if (body) adj.push(body);
 
   if (m.conditions.includes('recovering')) adj.push({ delta: -2, reason: '회복 중이라 보온을 우선했어요' });
   if (m.conditions.includes('pregnant')) adj.push({ delta: 1.5, reason: '임신 중에는 체온이 높아 덜 덥게 입어요' });

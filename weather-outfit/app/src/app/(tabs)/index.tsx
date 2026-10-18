@@ -9,8 +9,9 @@ import { OutfitCard } from '@/components/OutfitCard';
 import { Button, Card, SectionTitle } from '@/components/ui';
 import { colors } from '@/lib/theme';
 import { useAuth } from '@/state/AuthContext';
-import { useFamily } from '@/state/FamilyContext';
+import { useOutfitMembers } from '@/state/useOutfitMembers';
 import { useWeather } from '@/state/useWeather';
+import { OutfitGate } from '@/components/LoginPrompt';
 import { WeatherHero } from '@/components/WeatherHero';
 
 function greeting() {
@@ -22,7 +23,7 @@ function greeting() {
 
 export default function Today() {
   const { user } = useAuth();
-  const { members } = useFamily();
+  const members = useOutfitMembers();
   const { weather, loading, offline, usingDefaultLocation, refresh } = useWeather();
 
   const recs = useMemo(
@@ -60,20 +61,20 @@ export default function Today() {
         <SectionTitle>시간별 날씨</SectionTitle>
         <HourlyStrip hours={weather.hourly.slice(0, 18)} />
 
-        <SectionTitle right={members.length ? <Text style={s.link} onPress={() => router.push('/member/edit')}>+ 추가</Text> : undefined}>
-          오늘 우리 가족 코디
+        <SectionTitle right={members.length ? <Text style={s.link} onPress={() => router.push('/member/edit')}>+ 가족</Text> : undefined}>
+          {members.length > 1 ? '오늘 우리 가족 코디' : '오늘의 코디'}
         </SectionTitle>
-        {recs.length === 0 ? (
+        <OutfitGate />
+        {recs.map(({ member, rec }) => (
+          <OutfitCard key={member.id} member={member} rec={rec} onPress={() => router.push(`/member/${member.id}`)} />
+        ))}
+        {members.length === 1 ? (
           <Card>
-            <Text style={s.emptyTitle}>가족을 등록해 보세요 👨‍👩‍👧‍👦</Text>
-            <Text style={s.emptyBody}>나이와 추위·더위를 타는 정도를 알려주시면{'\n'}각자에게 맞는 옷 두께와 코디를 추천해 드려요.</Text>
-            <Button title="가족 구성원 추가" onPress={() => router.push('/member/edit')} />
+            <Text style={s.emptyTitle}>가족 코디도 함께 받아보세요 👨‍👩‍👧‍👦</Text>
+            <Text style={s.emptyBody}>아이·부모님을 등록하면 각자에게 맞는 옷 두께와 챙길 것을 알려드려요.</Text>
+            <Button title="가족 구성원 추가" variant="ghost" onPress={() => router.push('/member/edit')} />
           </Card>
-        ) : (
-          recs.map(({ member, rec }) => (
-            <OutfitCard key={member.id} member={member} rec={rec} onPress={() => router.push(`/member/${member.id}`)} />
-          ))
-        )}
+        ) : null}
 
         <Text style={s.source}>출처: {weather.sources.join(', ')}</Text>
       </ScrollView>

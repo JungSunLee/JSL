@@ -1,11 +1,18 @@
 {
   "name": "weather-outfit",
   "private": true,
-  "workspaces": ["packages/*", "server", "app"],
+  "workspaces": [
+    "packages/*",
+    "server",
+    "app",
+    "admin"
+  ],
   "scripts": {
     "test": "npm run test -w @wo/core && npm run test -w server",
-    "typecheck": "npm run typecheck -w @wo/core && npm run typecheck -w server && npm run typecheck -w app",
+    "typecheck": "npm run typecheck -w @wo/core && npm run typecheck -w server && npm run typecheck -w app && npm run typecheck -w admin",
     "dev:server": "npm run dev -w server",
-    "dev:app": "npm run start -w app"
+    "dev:app": "npm run start -w app",
+    "dev:admin": "npm run dev -w admin",
+    "build:admin": "npm run build -w admin"
   }
 }

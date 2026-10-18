@@ -1,6 +1,10 @@
 import cors from '@fastify/cors';
+import fastifyStatic from '@fastify/static';
+import { existsSync } from 'node:fs';
+import { resolve } from 'node:path';
 import Fastify from 'fastify';
 import { createProviders, type OAuthProvider, type ProviderId } from './auth/providers';
+import { registerAdminRoutes } from './admin/routes';
 import { registerAuthRoutes } from './auth/routes';
 import { Tokens } from './auth/tokens';
 import { UserStore } from './auth/users';
@@ -15,12 +19,13 @@ export interface BuildOptions {
   providers?: Record<ProviderId, OAuthProvider>;
   users?: UserStore;
   logger?: boolean;
+  adminDist?: string;
 }
 
 export function buildApp(opts: BuildOptions) {
   const { config } = opts;
   const app = Fastify({ logger: opts.logger ?? false });
-  app.register(cors, { origin: true });
+  app.register(cors, { origin: true, methods: ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE'] });
 
   const weather = createWeatherService({ config, fetch: opts.fetch, now: opts.now, log: app.log });
 
@@ -41,12 +46,24 @@ export function buildApp(opts: BuildOptions) {
     }
   });
 
-  registerAuthRoutes(app, {
-    config,
-    providers: opts.providers ?? createProviders(config, opts.fetch),
-    tokens: new Tokens(config.jwtSecret),
-    users: opts.users ?? new UserStore(config.dataDir),
-  });
+  const tokens = new Tokens(config.jwtSecret);
+  const users = opts.users ?? new UserStore(config.dataDir);
+  registerAuthRoutes(app, { config, providers: opts.providers ?? createProviders(config, opts.fetch), tokens, users });
+  registerAdminRoutes(app, { config, tokens, users });
+
+  // 관리자 홈페이지 정적 파일 (admin 빌드 결과가 있을 때만)
+  const adminDist = resolve(opts.adminDist ?? process.env.ADMIN_DIST ?? '../admin/dist');
+  if (existsSync(adminDist)) {
+    app.register(async (scope) => {
+      scope.addHook('onSend', async (_req, reply) => {
+        reply.header('X-Frame-Options', 'DENY');
+        reply.header('X-Content-Type-Options', 'nosniff');
+        reply.header('Referrer-Policy', 'no-referrer');
+      });
+      await scope.register(fastifyStatic, { root: adminDist, prefix: '/admin/' });
+      scope.get('/admin', (_req, reply) => reply.redirect('/admin/'));
+    });
+  }
 
   return app;
 }

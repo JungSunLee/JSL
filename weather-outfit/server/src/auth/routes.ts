@@ -1,8 +1,9 @@
-import type { FastifyInstance, FastifyRequest } from 'fastify';
+import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import type { Config } from '../config';
 import { PROVIDERS, type OAuthProvider, type ProviderId } from './providers';
 import type { Tokens } from './tokens';
-import type { UserStore } from './users';
+import { validateProfile } from './profile';
+import type { User, UserStore } from './users';
 
 export function isAllowedAppRedirect(url: string, allowlist: string[]): boolean {
   return allowlist.some((prefix) => url.startsWith(prefix));
@@ -56,6 +57,7 @@ export function registerAuthRoutes(
       try {
         const profile = await providers[st.provider].exchange(req.query.code, callbackUrl(st.provider), req.query.state!);
         const user = await users.upsertFromProfile(profile);
+        if (user.status === 'suspended') return reply.redirect(appendFragment(st.appRedirect, { error: 'suspended' }));
         const token = await tokens.signAccess(user.id);
         return reply.redirect(appendFragment(st.appRedirect, { token }));
       } catch (err) {
@@ -65,28 +67,68 @@ export function registerAuthRoutes(
     },
   );
 
-  async function requireUser(req: FastifyRequest) {
+  /** 토큰 검증 → 사용자. 정지된 계정은 403 */
+  async function requireUser(req: FastifyRequest, reply: FastifyReply): Promise<User | undefined> {
     const h = req.headers.authorization ?? '';
     const token = h.startsWith('Bearer ') ? h.slice(7) : '';
+    let user: User | undefined;
     try {
-      const id = await tokens.verifyAccess(token);
-      return await users.get(id);
+      user = await users.get(await tokens.verifyAccess(token));
     } catch {
+      /* invalid token */
+    }
+    if (!user) {
+      reply.code(401).send({ error: 'unauthorized' });
       return undefined;
     }
+    if (user.status === 'suspended') {
+      reply.code(403).send({ error: 'suspended' });
+      return undefined;
+    }
+    return user;
   }
 
   app.get('/v1/me', async (req, reply) => {
-    const user = await requireUser(req);
-    if (!user) return reply.code(401).send({ error: 'unauthorized' });
-    return { id: user.id, name: user.name, email: user.email, avatarUrl: user.avatarUrl, providers: user.accounts.map((a) => a.provider) };
+    const user = await requireUser(req, reply);
+    if (!user) return reply;
+    return toMe(user);
+  });
+
+  /** 온보딩/프로필 수정: 키·몸무게·체형·온도감 */
+  app.put<{ Body: { profile?: unknown; consent?: boolean; name?: string } }>('/v1/me/profile', async (req, reply) => {
+    const user = await requireUser(req, reply);
+    if (!user) return reply;
+    if (req.body?.consent !== true && !user.profileConsentAt) {
+      return reply.code(400).send({ error: 'consent_required' });
+    }
+    const { profile, errors } = validateProfile(req.body?.profile);
+    if (!profile) return reply.code(400).send({ error: 'invalid_profile', fields: errors });
+    const name = typeof req.body?.name === 'string' ? req.body.name.trim().slice(0, 20) : '';
+    const updated = await users.update(user.id, {
+      profile,
+      profileConsentAt: user.profileConsentAt ?? new Date().toISOString(),
+      ...(name ? { name } : {}),
+    });
+    return toMe(updated!);
   });
 
   /** 회원 탈퇴 (앱스토어 심사 필수 항목) */
   app.delete('/v1/me', async (req, reply) => {
-    const user = await requireUser(req);
-    if (!user) return reply.code(401).send({ error: 'unauthorized' });
+    const user = await requireUser(req, reply);
+    if (!user) return reply;
     await users.delete(user.id);
     return reply.code(204).send();
   });
+}
+
+export function toMe(user: User) {
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    avatarUrl: user.avatarUrl,
+    providers: user.accounts.map((a) => a.provider),
+    profile: user.profile ?? null,
+    needsOnboarding: !user.profile,
+  };
 }

@@ -7,16 +7,14 @@ import { colors } from '@/lib/theme';
 import { useAuth } from '@/state/AuthContext';
 import { useFamily } from '@/state/FamilyContext';
 
-const PROVIDER_LABEL = { naver: '네이버', kakao: '카카오', google: 'Google' } as const;
+import { BODY_TYPE_LABEL, SENSITIVITY_LABEL } from '@wo/core';
+
+const PROVIDER_LABEL = { naver: '네이버', kakao: '카카오', google: 'Google', dev: '테스트' } as const;
 
 export default function Settings() {
-  const { user, isGuest, signOut, deleteAccount } = useAuth();
+  const { user, signOut, deleteAccount } = useAuth();
   const { healthConsent, setHealthConsent } = useFamily();
 
-  const toLogin = async () => {
-    await signOut();
-    router.replace('/login');
-  };
 
   return (
     <SafeAreaView style={{ flex: 1 }} edges={['top']}>
@@ -31,8 +29,17 @@ export default function Settings() {
               <Text style={s.meta}>
                 {user.providers.map((p) => PROVIDER_LABEL[p]).join(', ')} 계정{user.email ? ` · ${user.email}` : ''}
               </Text>
+              {user.profile ? (
+                <Text style={s.meta}>
+                  {user.profile.birthYear}년생 · {user.profile.heightCm ? `${user.profile.heightCm}cm · ` : ''}
+                  {user.profile.weightKg ? `${user.profile.weightKg}kg · ` : ''}
+                  {BODY_TYPE_LABEL[user.profile.bodyType]} · {SENSITIVITY_LABEL[user.profile.sensitivity]}
+                </Text>
+              ) : null}
               <View style={{ height: 12 }} />
-              <Button title="로그아웃" variant="ghost" onPress={toLogin} />
+              <Button title={user.profile ? '내 정보 수정' : '내 정보 입력하기'} onPress={() => router.push('/onboarding')} />
+              <View style={{ height: 8 }} />
+              <Button title="로그아웃" variant="ghost" onPress={signOut} />
               <View style={{ height: 8 }} />
               <Button
                 title="회원 탈퇴"
@@ -45,7 +52,6 @@ export default function Settings() {
                       style: 'destructive',
                       onPress: async () => {
                         await deleteAccount();
-                        router.replace('/login');
                       },
                     },
                   ])
@@ -54,10 +60,10 @@ export default function Settings() {
             </>
           ) : (
             <>
-              <Text style={s.name}>{isGuest ? '둘러보기 중' : '로그인 필요'}</Text>
-              <Text style={s.meta}>로그인하면 여러 기기에서 가족 정보를 이어서 쓸 수 있어요 (예정).</Text>
+              <Text style={s.name}>로그인하지 않았어요</Text>
+              <Text style={s.meta}>날씨는 그대로 볼 수 있어요. 로그인하면 내 체형·온도감에 맞춘 코디를 추천받을 수 있어요.</Text>
               <View style={{ height: 12 }} />
-              <Button title="네이버·카카오·구글로 로그인" onPress={toLogin} />
+              <Button title="카카오·네이버·구글로 로그인" onPress={() => router.push('/login')} />
             </>
           )}
         </Card>

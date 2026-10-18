@@ -17,7 +17,8 @@ import { colors, radius } from '@/lib/theme';
 import { useFamily } from '@/state/FamilyContext';
 
 const EMOJIS = ['🙂', '👩', '👨', '👵', '👴', '👧', '👦', '👶', '🧒', '🤰'];
-const RELATIONS = Object.keys(RELATION_LABEL) as Relation[];
+// '나'는 로그인 프로필로 관리하므로 가족 구성원 선택지에서 제외
+const RELATIONS = (Object.keys(RELATION_LABEL) as Relation[]).filter((r) => r !== 'me');
 const SENS: ThermalSensitivity[] = [-2, -1, 0, 1, 2];
 const ACTIVITIES = Object.keys(ACTIVITY_LABEL) as Activity[];
 const CONDITIONS = Object.keys(CONDITION_LABEL) as HealthCondition[];
@@ -39,9 +40,9 @@ function MemberForm({ existing }: { existing?: FamilyMember }) {
   const [m, setM] = useState<FamilyMember>(
     existing ?? {
       id: newId(),
-      name: members.length === 0 ? '나' : '',
-      relation: members.length === 0 ? 'me' : 'child',
-      birthYear: thisYear - 35,
+      name: '',
+      relation: 'child',
+      birthYear: thisYear - 5,
       sensitivity: 0,
       conditions: [],
       activity: 'commute',

@@ -1,4 +1,4 @@
-import type { Activity, HealthCondition, PrecipType, Relation, Sky, ThermalSensitivity } from './types';
+import type { Activity, BodyType, Sex, HealthCondition, PrecipType, Relation, Sky, ThermalSensitivity } from './types';
 
 export const RELATION_LABEL: Record<Relation, string> = {
   me: '나',
@@ -58,3 +58,15 @@ export function weatherEmoji(sky: Sky, precip: PrecipType): string {
   if (sky === 'partly') return '⛅';
   return '☀️';
 }
+
+export const BODY_TYPE_LABEL: Record<BodyType, string> = {
+  slim: '마른 편',
+  average: '보통',
+  muscular: '근육형',
+  heavy: '통통한 편',
+};
+
+export const SEX_LABEL: Record<Sex, string> = {
+  female: '여성',
+  male: '남성',
+};

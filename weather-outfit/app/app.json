@@ -3,15 +3,16 @@
     "name": "우리집 옷날씨",
     "slug": "weatherfit",
     "scheme": "weatherfit",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.weatherfit.app",
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "현재 위치의 날씨와 미세먼지를 보여드리기 위해 위치 정보를 사용합니다."
+        "NSLocationWhenInUseUsageDescription": "현재 위치의 날씨와 미세먼지를 보여드리기 위해 위치 정보를 사용합니다.",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
@@ -25,7 +26,11 @@
       "permissions": [
         "ACCESS_COARSE_LOCATION"
       ],
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "blockedPermissions": [
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -43,6 +48,9 @@
     ],
     "extra": {
       "apiBaseUrl": "http://localhost:4000"
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
     }
   }
 }

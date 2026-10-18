@@ -5,15 +5,20 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, Card } from '@/components/ui';
 import { colors, radius } from '@/lib/theme';
 import { useFamily } from '@/state/FamilyContext';
+import { OutfitGate } from '@/components/LoginPrompt';
+import { useAuth } from '@/state/AuthContext';
 
 export default function Family() {
   const { members } = useFamily();
+  const { user } = useAuth();
+  const ready = !!user?.profile;
   return (
     <SafeAreaView style={{ flex: 1 }} edges={['top']}>
       <ScrollView contentContainerStyle={{ padding: 16 }}>
         <Text style={s.title}>우리 가족</Text>
         <Text style={s.sub}>구성원별로 체감 온도를 다르게 계산해 코디를 추천해요.</Text>
-        {members.map((m) => (
+        {!ready ? <OutfitGate what="우리 가족 맞춤 코디" /> : null}
+        {ready && members.map((m) => (
           <Pressable
             key={m.id}
             onPress={() => router.push({ pathname: '/member/edit', params: { id: m.id } })}
@@ -33,12 +38,14 @@ export default function Family() {
             <Text style={s.chev}>›</Text>
           </Pressable>
         ))}
+        {ready ? (
         <Card style={{ marginTop: 8 }}>
           <Button title="+ 가족 구성원 추가" onPress={() => router.push('/member/edit')} />
           <Text style={s.hint}>
             💡 건강앱(Apple 건강·Health Connect) 연동은 다음 버전에서 지원 예정이에요. 지금은 추위·더위를 타는 정도를 직접 선택해 주세요.
           </Text>
         </Card>
+        ) : null}
       </ScrollView>
     </SafeAreaView>
   );

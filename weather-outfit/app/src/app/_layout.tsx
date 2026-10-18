@@ -15,7 +15,8 @@ export default function RootLayout() {
           <StatusBar style="dark" />
           <Stack screenOptions={{ contentStyle: { backgroundColor: colors.bg }, headerTintColor: colors.text, headerBackTitle: '뒤로' }}>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="login" options={{ headerShown: false, animation: 'fade' }} />
+            <Stack.Screen name="login" options={{ headerShown: false, presentation: 'modal' }} />
+            <Stack.Screen name="onboarding" options={{ title: '내 정보' }} />
             <Stack.Screen name="member/edit" options={{ presentation: 'modal', title: '가족 구성원' }} />
             <Stack.Screen name="member/[id]" options={{ title: '오늘의 코디' }} />
           </Stack>

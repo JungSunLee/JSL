@@ -1,8 +1,8 @@
 import { getJson, type FetchLike } from '../http';
 import type { Config } from '../config';
 
-export type ProviderId = 'naver' | 'kakao' | 'google';
-export const PROVIDERS: ProviderId[] = ['naver', 'kakao', 'google'];
+export type ProviderId = 'naver' | 'kakao' | 'google' | 'dev';
+export const PROVIDERS: ProviderId[] = ['kakao', 'naver', 'google', 'dev'];
 
 export interface SocialProfile {
   provider: ProviderId;
@@ -98,5 +98,18 @@ export function createProviders(config: Config, f: FetchLike = fetch): Record<Pr
     },
   };
 
-  return { naver, kakao, google };
+  /**
+   * 개발용 테스트 로그인: 소셜 키 없이 로그인 이후 화면(온보딩·코디 추천)을 확인하기 위함.
+   * ALLOW_DEV_LOGIN=true 이고 운영 환경이 아닐 때만 켜진다.
+   */
+  const dev: OAuthProvider = {
+    id: 'dev',
+    enabled: config.allowDevLogin,
+    authorizeUrl: (redirectUri, state) => `${redirectUri}?${form({ code: 'dev', state })}`,
+    async exchange() {
+      return { provider: 'dev', providerUserId: 'dev-tester', name: '테스트 사용자', email: 'tester@example.com' };
+    },
+  };
+
+  return { naver, kakao, google, dev };
 }

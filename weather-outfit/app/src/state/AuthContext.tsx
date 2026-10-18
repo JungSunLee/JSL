@@ -1,21 +1,24 @@
+import type { UserProfile } from '@wo/core';
 import * as Linking from 'expo-linking';
 import * as WebBrowser from 'expo-web-browser';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { api, type Me, type ProviderId } from '@/lib/api';
-import { getJson, secure, setJson } from '@/lib/storage';
+import { api, ApiError, type Me, type ProviderId } from '@/lib/api';
+import { secure } from '@/lib/storage';
 
 WebBrowser.maybeCompleteAuthSession();
 
 const TOKEN_KEY = 'auth.token';
-const GUEST_KEY = 'auth.guest';
 
+/**
+ * 로그인은 선택. 날씨는 누구나 보고, 코디 추천은 로그인 + 프로필 입력 후 제공한다.
+ */
 interface AuthState {
   ready: boolean;
   user: Me | null;
   token: string | null;
-  isGuest: boolean;
-  signIn(provider: ProviderId): Promise<void>;
-  continueAsGuest(): Promise<void>;
+  /** 로그인 성공 시 사용자 반환, 사용자가 창을 닫으면 null */
+  signIn(provider: ProviderId): Promise<Me | null>;
+  saveProfile(profile: UserProfile, opts: { consent?: boolean; name?: string }): Promise<Me>;
   signOut(): Promise<void>;
   deleteAccount(): Promise<void>;
 }
@@ -27,23 +30,23 @@ function parseFragment(url: string): Record<string, string> {
   return Object.fromEntries(new URLSearchParams(hash));
 }
 
+export class LoginError extends Error {}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<Me | null>(null);
-  const [isGuest, setGuest] = useState(false);
 
   useEffect(() => {
     (async () => {
-      const [t, g] = await Promise.all([secure.get(TOKEN_KEY), getJson(GUEST_KEY, false)]);
-      setGuest(g);
+      const t = await secure.get(TOKEN_KEY);
       if (t) {
         try {
           setUser(await api.me(t));
           setToken(t);
-        } catch {
-          // 만료·서버 미연결: 다시 로그인하도록
-          await secure.remove(TOKEN_KEY);
+        } catch (e) {
+          // 만료·정지·탈퇴된 토큰은 지운다. 네트워크 오류면 토큰은 남겨 다음 실행에 재시도
+          if (e instanceof ApiError) await secure.remove(TOKEN_KEY);
         }
       }
       setReady(true);
@@ -54,28 +57,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signIn = useCallback(async (provider: ProviderId) => {
     const appRedirect = Linking.createURL('auth');
     const result = await WebBrowser.openAuthSessionAsync(api.loginStartUrl(provider, appRedirect), appRedirect);
-    if (result.type !== 'success') return;
+    if (result.type !== 'success') return null;
     const { token: t, error } = parseFragment(result.url);
-    if (error || !t) throw new Error(error ?? 'login_failed');
+    if (error || !t) throw new LoginError(error ?? 'login_failed');
     const me = await api.me(t);
     await secure.set(TOKEN_KEY, t);
-    await setJson(GUEST_KEY, false);
     setToken(t);
     setUser(me);
-    setGuest(false);
+    return me;
   }, []);
 
-  const continueAsGuest = useCallback(async () => {
-    await setJson(GUEST_KEY, true);
-    setGuest(true);
-  }, []);
+  const saveProfile = useCallback(
+    async (profile: UserProfile, opts: { consent?: boolean; name?: string }) => {
+      if (!token) throw new LoginError('not_signed_in');
+      const me = await api.saveProfile(token, profile, opts);
+      setUser(me);
+      return me;
+    },
+    [token],
+  );
 
   const signOut = useCallback(async () => {
     await secure.remove(TOKEN_KEY);
-    await setJson(GUEST_KEY, false);
     setToken(null);
     setUser(null);
-    setGuest(false);
   }, []);
 
   const deleteAccount = useCallback(async () => {
@@ -84,8 +89,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [token, signOut]);
 
   const value = useMemo(
-    () => ({ ready, user, token, isGuest, signIn, continueAsGuest, signOut, deleteAccount }),
-    [ready, user, token, isGuest, signIn, continueAsGuest, signOut, deleteAccount],
+    () => ({ ready, user, token, signIn, saveProfile, signOut, deleteAccount }),
+    [ready, user, token, signIn, saveProfile, signOut, deleteAccount],
   );
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

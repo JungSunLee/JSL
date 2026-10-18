@@ -4,7 +4,7 @@ import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { ThicknessMeter } from '@/components/OutfitCard';
 import { Button, Card, Chip, SectionTitle } from '@/components/ui';
 import { colors } from '@/lib/theme';
-import { useFamily } from '@/state/FamilyContext';
+import { useOutfitMembers } from '@/state/useOutfitMembers';
 import { useWeather } from '@/state/useWeather';
 
 const SLOT_LABEL: Record<OutfitSlot, string> = { outer: '겉옷', top: '상의', bottom: '하의', shoes: '신발', accessory: '챙길 것' };
@@ -13,7 +13,7 @@ const LEVEL_BG = { info: '#EEF3FF', caution: '#FFF4E0', warning: '#FDECEF' } as 
 
 export default function MemberDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { members } = useFamily();
+  const members = useOutfitMembers();
   const { weather } = useWeather();
   const member = members.find((m) => m.id === id);
   if (!member || !weather) return null;

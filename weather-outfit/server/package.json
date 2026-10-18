@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@fastify/cors": "^11.3.1",
+    "@fastify/static": "^10.1.6",
     "@wo/core": "*",
     "fastify": "^5.12.7",
     "jose": "^6.2.12",

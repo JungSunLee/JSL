@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { mockWeather, recommendOutfit, type FamilyMember, type WeatherSnapshot } from '../src';
+import { bmi, memberFromProfile, mockWeather, recommendOutfit, type FamilyMember, type WeatherSnapshot } from '../src';
 
 const now = new Date('2026-10-17T00:00:00Z');
 const base: WeatherSnapshot = { ...mockWeather(now), temp: 15, tempMin: 12, tempMax: 19, humidity: 50, windSpeed: 1, uvIndex: 1, pm10: 20, pm25: 10, precipProbMax: 0 };
@@ -96,5 +96,23 @@ describe('recommendOutfit', () => {
   it('근거 문구에 개인 체감온도가 포함된다', () => {
     const r = recommendOutfit(base, adult, { now });
     expect(r.reasons.at(-1)).toContain(String(r.personalFeelsLike));
+  });
+
+  it('BMI가 낮으면 더 따뜻하게, 높으면 더 가볍게 (성인)', () => {
+    const slim = recommendOutfit(base, { ...adult, heightCm: 175, weightKg: 52 }, { now });
+    const heavy = recommendOutfit(base, { ...adult, heightCm: 170, weightKg: 85 }, { now });
+    expect(slim.personalFeelsLike).toBe(14);
+    expect(heavy.personalFeelsLike).toBe(16);
+    expect(slim.reasons.some((r) => r.includes('BMI'))).toBe(true);
+  });
+
+  it('키·몸무게가 없으면 선택한 체형으로 보정', () => {
+    expect(recommendOutfit(base, { ...adult, bodyType: 'slim' }, { now }).personalFeelsLike).toBe(14);
+  });
+
+  it('프로필 → 구성원 변환', () => {
+    const m = memberFromProfile('u1', '지은', { birthYear: 1990, sex: 'female', heightCm: 162, weightKg: 50, bodyType: 'slim', sensitivity: -1, activity: 'commute' });
+    expect(m).toMatchObject({ id: 'u1', relation: 'me', sensitivity: -1, heightCm: 162, emoji: '👩' });
+    expect(bmi(162, 50)).toBe(19.1);
   });
 });
