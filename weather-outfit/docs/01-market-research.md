@@ -227,12 +227,12 @@
 - 트래픽: **개발계정 10,000건/일**. 운영계정은 활용사례를 등록해 증량을 신청하며, 무료이고 개발·운영 모두 자동승인입니다. 출처: https://www.data.go.kr/data/15084084/openapi.do
 - 대안 경로: 기상청 API허브 `https://apihub.kma.go.kr/api/typ02/openApi/...`(authKey 방식)에서도 같은 서비스를 호출하는 사례가 있습니다. 출처: https://github.com/murianwind/weather-calendar (update_calendar.py)
 
-### 5.2 기상청 생활기상지수 조회서비스 3.0 (LivingWthrIdxServiceV4)
+### 5.2 기상청 생활기상지수 조회서비스 3.0 (LivingWthrIdxServiceV5)
 - 포털: https://www.data.go.kr/en/data/15085288/openapi.do
-- Base URL: `https://apis.data.go.kr/1360000/LivingWthrIdxServiceV4`
+- Base URL: `https://apis.data.go.kr/1360000/LivingWthrIdxServiceV5`
 - 제공 지수: 자외선지수, 대기정체지수, (여름철) 대상별 체감온도. 출처: 위 포털 페이지
 - 오퍼레이션(실사용 코드로 확인)
-  - `getUVIdxV4`: 자외선지수. 파라미터 `serviceKey`, `areaNo`(10자리 행정구역코드, 예: 1121571000), `time=YYYYMMDDHH`, `dataType=JSON`, `pageNo`, `numOfRows`. 출처: https://github.com/ShimPyoSo/ShimPyo_FE (src/app/api/uv/route.ts), https://github.com/d4eh0/pack-for-today (src/pages/api/uv.js)
+  - `getUVIdxV5`: 자외선지수. 파라미터 `serviceKey`, `areaNo`(10자리 행정구역코드, 예: 1121571000), `time=YYYYMMDDHH`, `dataType=JSON`, `pageNo`, `numOfRows`. 출처: https://github.com/ShimPyoSo/ShimPyo_FE (src/app/api/uv/route.ts), https://github.com/d4eh0/pack-for-today (src/pages/api/uv.js)
   - `getAirDiffusionIdxV4`: 대기정체지수. 출처: https://github.com/yeonjulee1005/dewdew_v3 (stores/locationWeatherData.ts)
   - `getSenTaIdxV4`: 체감온도(포털 예시 오퍼레이션). 출처: https://www.data.go.kr/en/data/15085288/openapi.do
 - 자외선 단계: 낮음 3 미만, 보통 3~5, 높음 6~7, 매우높음 8~10, 위험 11 이상(연중 제공). 출처: https://data.kma.go.kr/data/lwi/lwiRltmList.do

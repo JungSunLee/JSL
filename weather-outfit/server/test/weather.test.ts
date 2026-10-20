@@ -33,7 +33,7 @@ function fakeUpstream(calls: string[]) {
         fc('20261017', '1500', 'TMP', '19'), fc('20261017', '1500', 'SKY', '4'), fc('20261017', '1500', 'PTY', '1'), fc('20261017', '1500', 'POP', '70'),
         fc('20261017', '0600', 'TMN', '8.0'), fc('20261017', '1500', 'TMX', '20.0'),
       ] });
-    if (url.includes('getUVIdxV4')) return ok({ item: [{ date: '2026101706', h0: '1', h3: '3', h6: '5', h9: '4', h12: '1' }] });
+    if (url.includes('LivingWthrIdxServiceV5/getUVIdxV5')) return ok({ item: [{ date: '2026101706', h0: '1', h3: '3', h6: '5', h9: '4', h12: '1' }] });
     if (url.includes('getNearbyMsrstnList')) return ok([{ stationName: '중구' }]);
     if (url.includes('getMsrstnAcctoRltmMesureDnsty')) return ok([{ dataTime: '2026-10-17 08:00', pm10Value: '-', pm25Value: '-' }, { dataTime: '2026-10-17 07:00', pm10Value: '45', pm25Value: '28' }]);
     if (url.includes('coord2regioncode')) return { documents: [{ region_type: 'H', code: '1114055000', address_name: '서울 중구 명동', region_1depth_name: '서울특별시', region_2depth_name: '중구', region_3depth_name: '명동' }] };

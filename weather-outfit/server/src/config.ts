@@ -26,7 +26,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     port: Number(env.PORT ?? 4000),
     publicBaseUrl: (env.PUBLIC_BASE_URL ?? 'http://localhost:4000').replace(/\/$/, ''),
     jwtSecret: jwtSecret || 'dev-only-insecure-secret-change-me-please!!',
-    appRedirectAllowlist: (env.APP_REDIRECT_ALLOWLIST ?? 'weatherfit://,exp://,http://localhost:8081')
+    appRedirectAllowlist: (env.APP_REDIRECT_ALLOWLIST ?? 'weatherfit://,exp://,http://localhost:8081,http://localhost:8090')
       .split(',')
       .map((s) => s.trim())
       .filter(Boolean),

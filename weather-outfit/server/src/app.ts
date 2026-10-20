@@ -31,7 +31,7 @@ export function buildApp(opts: BuildOptions) {
 
   app.get('/health', async () => ({ ok: true, live: !!config.dataGoKrKey }));
 
-  app.get<{ Querystring: { lat?: string; lon?: string } }>('/v1/weather', async (req, reply) => {
+  app.get<{ Querystring: { lat?: string; lon?: string; name?: string } }>('/v1/weather', async (req, reply) => {
     const lat = Number(req.query.lat);
     const lon = Number(req.query.lon);
     // 대한민국 영역(기상청 격자 범위)만 허용
@@ -39,7 +39,9 @@ export function buildApp(opts: BuildOptions) {
       return reply.code(400).send({ error: 'lat/lon must be within South Korea' });
     }
     try {
-      return await weather.getWeather(lat, lon);
+      // name: 앱이 아는 지역 이름(기본 지역 등). 카카오 지역명 변환이 안 될 때 대신 표시
+      const name = typeof req.query.name === 'string' ? req.query.name.trim().slice(0, 40) : undefined;
+      return await weather.getWeather(lat, lon, name || undefined);
     } catch (err) {
       req.log.error({ err: String(err) }, '기상청 조회 실패 (키 오류·시간 초과 등). err 내용을 확인하세요');
       return reply.code(502).send({ error: 'upstream_unavailable' });

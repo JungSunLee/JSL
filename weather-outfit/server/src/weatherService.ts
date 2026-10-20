@@ -39,13 +39,13 @@ export function createWeatherService({ config, fetch: f = fetch, now = () => new
     }
   }
 
-  async function getWeather(lat: number, lon: number): Promise<WeatherSnapshot> {
+  async function getWeather(lat: number, lon: number, fallbackName?: string): Promise<WeatherSnapshot> {
     const t = now();
     const region: Region | null = config.kakao.restKey
       ? await soft('region', cache.get(`rg:${lat.toFixed(3)},${lon.toFixed(3)}`, 24 * 60 * MIN, () => reverseGeocode(f, config.kakao.restKey!, lat, lon)))
       : null;
 
-    if (!key) return mockWeather(t, region ? `${region.name} (데모)` : undefined);
+    if (!key) return mockWeather(t, `${region?.name ?? fallbackName ?? '성남시 중원구 중앙동'} (데모)`);
 
     const { nx, ny } = latLonToGrid(lat, lon);
     const g = `${nx},${ny}`;
@@ -77,7 +77,7 @@ export function createWeatherService({ config, fetch: f = fetch, now = () => new
     if (air) sources.push('한국환경공단 에어코리아');
 
     return {
-      locationName: region?.name ?? `격자 ${g}`,
+      locationName: region?.name ?? fallbackName ?? `격자 ${g}`,
       observedAt: current.observedAt,
       temp: current.temp,
       tempMin: Math.min(range.min, current.temp),

@@ -3,7 +3,7 @@ import type { HourlyForecast, WeatherSnapshot } from './types';
 /**
  * 서비스키 없이도 앱을 둘러볼 수 있는 데모 날씨 (선선한 가을 아침, 미세먼지 보통).
  */
-export function mockWeather(now: Date = new Date(), locationName = '서울 중구 (데모)'): WeatherSnapshot {
+export function mockWeather(now: Date = new Date(), locationName = '성남시 중원구 중앙동 (데모)'): WeatherSnapshot {
   const start = new Date(now);
   start.setMinutes(0, 0, 0);
   const curve = [11, 11, 12, 14, 16, 18, 20, 21, 21, 20, 18, 16, 15, 14, 13, 12, 12, 11, 11, 10, 10, 10, 9, 9];

@@ -9,7 +9,12 @@ import type { FetchLike } from '../http';
 import { callDataGoKr } from './dataGoKr';
 
 const VILAGE = 'https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0';
-const LIVING = 'https://apis.data.go.kr/1360000/LivingWthrIdxServiceV4';
+/**
+ * 생활기상지수(자외선) 서비스는 버전이 바뀌면 경로도 바뀐다 (V4 → V5).
+ * 공공데이터포털 "활용신청 현황 → 서비스 상세"의 End Point와 맞춰야 하며, 환경변수로 덮어쓸 수 있다.
+ */
+const LIVING = process.env.KMA_LIVING_IDX_BASE ?? 'https://apis.data.go.kr/1360000/LivingWthrIdxServiceV5';
+const UV_OPERATION = process.env.KMA_UV_OPERATION ?? 'getUVIdxV5';
 
 export async function fetchUltraSrtNcst(f: FetchLike, key: string, nx: number, ny: number, now: Date) {
   const { baseDate, baseTime } = ultraSrtNcstBase(now);
@@ -45,7 +50,7 @@ export async function fetchUvIndex(f: FetchLike, key: string, areaNo: string, no
     issue.setUTCHours(18);
   }
   const time = `${issue.getUTCFullYear()}${String(issue.getUTCMonth() + 1).padStart(2, '0')}${String(issue.getUTCDate()).padStart(2, '0')}${String(issue.getUTCHours()).padStart(2, '0')}`;
-  const items = await callDataGoKr<UvItem>(f, `${LIVING}/getUVIdxV4`, key, {
+  const items = await callDataGoKr<UvItem>(f, `${LIVING}/${UV_OPERATION}`, key, {
     pageNo: 1, numOfRows: 10, dataType: 'JSON', areaNo, time,
   });
   const item = items[0];
