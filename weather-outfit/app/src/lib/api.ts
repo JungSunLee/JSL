@@ -1,5 +1,6 @@
 import type { UserProfile, WeatherSnapshot } from '@wo/core';
 import { API_BASE_URL } from './config';
+import { DEMO_MODE, demoApi } from './demo';
 
 export type ProviderId = 'naver' | 'kakao' | 'google' | 'dev';
 
@@ -40,13 +41,26 @@ async function request<T>(path: string, init?: RequestInit & { token?: string; j
   return res.status === 204 ? (undefined as T) : ((await res.json()) as T);
 }
 
-export const api = {
+const liveApi = {
   weather: (lat: number, lon: number) => request<WeatherSnapshot>(`/v1/weather?lat=${lat}&lon=${lon}`),
   providers: () => request<{ id: ProviderId; enabled: boolean }[]>('/v1/auth/providers'),
   me: (token: string) => request<Me>('/v1/me', { token }),
   saveProfile: (token: string, profile: UserProfile, opts: { consent?: boolean; name?: string }) =>
     request<Me>('/v1/me/profile', { method: 'PUT', token, json: { profile, ...opts } }),
   deleteMe: (token: string) => request<void>('/v1/me', { method: 'DELETE', token }),
+};
+
+export const api = {
+  ...liveApi,
+  ...(DEMO_MODE
+    ? {
+        weather: () => demoApi.weather(),
+        providers: () => demoApi.providers(),
+        me: () => demoApi.me(),
+        saveProfile: (_t: string, profile: UserProfile, opts: { consent?: boolean; name?: string }) => demoApi.saveProfile(profile, opts),
+        deleteMe: () => demoApi.deleteMe(),
+      }
+    : {}),
   loginStartUrl: (provider: ProviderId, appRedirect: string) =>
     `${API_BASE_URL}/v1/auth/${provider}/start?app_redirect=${encodeURIComponent(appRedirect)}`,
 };

@@ -20,6 +20,7 @@
 
 - [01. 시장·경쟁 조사](docs/01-market-research.md)
 - [02. 서비스 기획서](docs/02-product-plan.md)
+- [03. 실제 서비스 연결 가이드](docs/03-setup-keys.md): 공공데이터·카카오·네이버·구글 키 발급, GitHub 보안, 서버 배포
 
 ## 폴더 구조
 
@@ -30,6 +31,19 @@ weather-outfit/
 ├─ server          # API 서버 (날씨 데이터, 소셜 로그인, 회원 정보, 관리자 API)
 └─ packages/core   # 코디 추천 엔진 (앱·서버 공용)
 ```
+
+## PC에서 바로 보기 (설치 없이)
+
+가장 쉬운 방법은 Claude가 올려 둔 **데모 미리보기 페이지**입니다. 휴대폰 화면 모양 안에서 앱이 실제로 동작하고(예시 날씨, 즉시 로그인), 코드를 고칠 때마다 Claude가 같은 주소로 다시 올립니다.
+
+직접 만들려면 (Node.js 22 필요):
+
+```bash
+cd weather-outfit && npm install
+npm run preview:demo        # 빌드 후 http://localhost:8090 에서 휴대폰 화면으로 보기
+```
+
+이 데모 모드(`EXPO_PUBLIC_DEMO=1`)는 서버·키 없이 동작하며, 로그인은 즉시 처리되고 입력 정보는 브라우저에만 저장됩니다.
 
 ## 내 휴대폰에서 앱 보기 (개발 중)
 
@@ -43,9 +57,8 @@ cd weather-outfit
 npm install
 
 # 1) 서버 실행 (키가 없어도 데모 날씨 + 테스트 로그인으로 동작)
-cp server/.env.example server/.env
-set -a; . server/.env; set +a
-npm run dev:server                 # http://localhost:4000
+# server/.env.example 을 복사해 server/.env (또는 점 없이 server/env.txt) 로 만들고 키 입력
+npm run dev:server                 # http://localhost:4000  (설정 파일을 자동으로 읽습니다)
 
 # 2) 앱 실행 — <PC의 IP>는 PC의 와이파이 IP 주소 (예: 192.168.0.10)
 EXPO_PUBLIC_API_URL=http://<PC의 IP>:4000 npm run dev:app

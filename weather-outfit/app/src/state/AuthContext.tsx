@@ -3,6 +3,7 @@ import * as Linking from 'expo-linking';
 import * as WebBrowser from 'expo-web-browser';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { api, ApiError, type Me, type ProviderId } from '@/lib/api';
+import { DEMO_MODE, DEMO_TOKEN, demoApi } from '@/lib/demo';
 import { secure } from '@/lib/storage';
 
 WebBrowser.maybeCompleteAuthSession();
@@ -55,6 +56,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   /** 서버가 OAuth를 대행하고 weatherfit://auth#token=... 으로 돌려준다 (Expo Go에서도 동작) */
   const signIn = useCallback(async (provider: ProviderId) => {
+    if (DEMO_MODE) {
+      // 데모 모드: 외부 로그인 창 없이 바로 로그인 처리
+      const me = await demoApi.signIn(provider);
+      await secure.set(TOKEN_KEY, DEMO_TOKEN);
+      setToken(DEMO_TOKEN);
+      setUser(me);
+      return me;
+    }
     const appRedirect = Linking.createURL('auth');
     const result = await WebBrowser.openAuthSessionAsync(api.loginStartUrl(provider, appRedirect), appRedirect);
     if (result.type !== 'success') return null;

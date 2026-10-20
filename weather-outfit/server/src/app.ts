@@ -41,7 +41,7 @@ export function buildApp(opts: BuildOptions) {
     try {
       return await weather.getWeather(lat, lon);
     } catch (err) {
-      req.log.error({ err: String(err) }, 'weather fetch failed');
+      req.log.error({ err: String(err) }, '기상청 조회 실패 (키 오류·시간 초과 등). err 내용을 확인하세요');
       return reply.code(502).send({ error: 'upstream_unavailable' });
     }
   });
