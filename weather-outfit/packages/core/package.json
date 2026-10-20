@@ -1,0 +1,17 @@
+{
+  "name": "@wo/core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "날씨 정규화 · 체감온도 · 가족 구성원별 코디 추천 엔진 (앱/서버 공용)",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "~6.0.3",
+    "vitest": "^5.0.5"
+  }
+}
