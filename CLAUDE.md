@@ -7,7 +7,7 @@
 
 ## 프로젝트
 - `weather-outfit/`: 날씨 기반 가족 코디 추천 앱 (Expo 앱, Fastify 서버, 관리자 홈페이지, 공용 추천 엔진). 자세한 실행 방법은 `weather-outfit/README.md`.
-- `RQTV/`, `ReadyQTV_final/`: 기존 안드로이드 프로젝트. 요청 없이는 건드리지 않는다.
+- `RQTV/`, `ReadyQTV_final/`(옛 안드로이드 프로젝트)는 2026-10 사용자 요청으로 삭제했다. 과거 커밋 `fdebe43`에 남아 있다.
 
 ## Git
 - 작업 브랜치에 커밋·푸시하고, master 합치기(PR 머지)는 사용자가 직접 한다.
