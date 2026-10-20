@@ -14,6 +14,7 @@
     "dev:app": "npm run start -w app",
     "dev:admin": "npm run dev -w admin",
     "build:admin": "npm run build -w admin",
-    "preview:demo": "scripts/build-demo-preview.sh /tmp/weatherfit-demo && node scripts/serve-demo.mjs /tmp/weatherfit-demo"
+    "preview:demo": "scripts/build-web-preview.sh /tmp/weatherfit-preview demo && node scripts/serve-preview.mjs /tmp/weatherfit-preview demo",
+    "preview:live": "scripts/build-web-preview.sh /tmp/weatherfit-preview live && node scripts/serve-preview.mjs /tmp/weatherfit-preview live"
   }
 }

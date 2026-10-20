@@ -48,7 +48,7 @@ export default function Today() {
     : weather.isMock
       ? '데모 날씨 · 서비스키 설정 시 실제 데이터'
       : usingDefaultLocation
-        ? '위치 권한이 없어 서울 기준이에요'
+        ? '위치 권한이 없어 기본 지역(성남시 중원구 중앙동) 기준이에요'
         : undefined;
 
   return (

@@ -42,7 +42,8 @@ async function request<T>(path: string, init?: RequestInit & { token?: string; j
 }
 
 const liveApi = {
-  weather: (lat: number, lon: number) => request<WeatherSnapshot>(`/v1/weather?lat=${lat}&lon=${lon}`),
+  weather: (lat: number, lon: number, name?: string) =>
+    request<WeatherSnapshot>(`/v1/weather?lat=${lat}&lon=${lon}${name ? `&name=${encodeURIComponent(name)}` : ''}`),
   providers: () => request<{ id: ProviderId; enabled: boolean }[]>('/v1/auth/providers'),
   me: (token: string) => request<Me>('/v1/me', { token }),
   saveProfile: (token: string, profile: UserProfile, opts: { consent?: boolean; name?: string }) =>

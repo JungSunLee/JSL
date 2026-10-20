@@ -40,10 +40,13 @@ weather-outfit/
 
 ```bash
 cd weather-outfit && npm install
-npm run preview:demo        # 빌드 후 http://localhost:8090 에서 휴대폰 화면으로 보기
+npm run preview:demo        # 예시 날씨 · 즉시 로그인 → http://localhost:8090/frame
+npm run preview:live        # PC 서버(localhost:4000)의 실제 날씨 · 테스트 로그인 → http://localhost:8090/frame
 ```
 
-이 데모 모드(`EXPO_PUBLIC_DEMO=1`)는 서버·키 없이 동작하며, 로그인은 즉시 처리되고 입력 정보는 브라우저에만 저장됩니다.
+- `preview:demo`: 서버·키 없이 동작합니다. 로그인은 즉시 처리되고 입력 정보는 브라우저에만 저장됩니다.
+- `preview:live`: 다른 터미널에서 `npm run dev:server`가 켜져 있어야 합니다. 실제 날씨와 "개발용 테스트 로그인"으로 앱 전체를 PC에서 확인할 수 있습니다.
+- 위치 권한이 없는 PC 브라우저에서는 기본 지역(성남시 중원구 중앙동) 날씨를 보여줍니다.
 
 ## 내 휴대폰에서 앱 보기 (개발 중)
 

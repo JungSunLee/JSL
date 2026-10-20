@@ -24,7 +24,7 @@ async function save(me: Me | null) {
 }
 
 export const demoApi = {
-  weather: async (): Promise<WeatherSnapshot> => ({ ...mockWeather(), locationName: '서울 중구 (데모)' }),
+  weather: async (): Promise<WeatherSnapshot> => ({ ...mockWeather(), locationName: '성남시 중원구 중앙동 (데모)' }),
   providers: async () => (['kakao', 'naver', 'google'] as ProviderId[]).map((id) => ({ id, enabled: true })),
   me: async () => {
     const me = await load();
