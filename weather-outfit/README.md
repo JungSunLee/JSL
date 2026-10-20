@@ -57,9 +57,8 @@ cd weather-outfit
 npm install
 
 # 1) 서버 실행 (키가 없어도 데모 날씨 + 테스트 로그인으로 동작)
-cp server/.env.example server/.env
-set -a; . server/.env; set +a
-npm run dev:server                 # http://localhost:4000
+# server/.env.example 을 복사해 server/.env (또는 점 없이 server/env.txt) 로 만들고 키 입력
+npm run dev:server                 # http://localhost:4000  (설정 파일을 자동으로 읽습니다)
 
 # 2) 앱 실행 — <PC의 IP>는 PC의 와이파이 IP 주소 (예: 192.168.0.10)
 EXPO_PUBLIC_API_URL=http://<PC의 IP>:4000 npm run dev:app
