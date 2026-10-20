@@ -34,7 +34,7 @@ export function createWeatherService({ config, fetch: f = fetch, now = () => new
     try {
       return await p;
     } catch (err) {
-      log?.warn({ err: String(err) }, `${label} unavailable`);
+      log?.warn({ err: String(err) }, `${label} unavailable — 날씨는 표시하고 이 항목만 비웁니다`);
       return null;
     }
   }

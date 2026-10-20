@@ -104,3 +104,17 @@ describe('wgs84ToTm', () => {
     expect(tmY).toBeLessThan(453000);
   });
 });
+
+describe('getJson', () => {
+  it('시간 초과면 한 번 더 시도한다', async () => {
+    const { getJson } = await import('../src/http');
+    let calls = 0;
+    const f = (async () => {
+      calls += 1;
+      if (calls === 1) throw Object.assign(new Error('timeout'), { name: 'TimeoutError' });
+      return new Response('{"ok":1}', { status: 200 });
+    }) as unknown as typeof fetch;
+    expect(await getJson(f, 'https://x.test/a')).toEqual({ ok: 1 });
+    expect(calls).toBe(2);
+  });
+});
