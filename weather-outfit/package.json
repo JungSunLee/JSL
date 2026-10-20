@@ -13,6 +13,7 @@
     "dev:server": "npm run dev -w server",
     "dev:app": "npm run start -w app",
     "dev:admin": "npm run dev -w admin",
-    "build:admin": "npm run build -w admin"
+    "build:admin": "npm run build -w admin",
+    "preview:demo": "scripts/build-demo-preview.sh /tmp/weatherfit-demo && node scripts/serve-demo.mjs /tmp/weatherfit-demo"
   }
 }

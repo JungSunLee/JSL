@@ -7,6 +7,7 @@ import { HourlyStrip } from '@/components/HourlyStrip';
 import { Indicators } from '@/components/Indicators';
 import { OutfitCard } from '@/components/OutfitCard';
 import { Button, Card, SectionTitle } from '@/components/ui';
+import { DEMO_MODE } from '@/lib/demo';
 import { colors } from '@/lib/theme';
 import { useAuth } from '@/state/AuthContext';
 import { useOutfitMembers } from '@/state/useOutfitMembers';
@@ -40,7 +41,9 @@ export default function Today() {
     );
   }
 
-  const note = offline
+  const note = DEMO_MODE
+    ? '데모 버전 · 예시 날씨로 동작 중'
+    : offline
     ? '서버에 연결할 수 없어 예시 날씨를 보여드려요'
     : weather.isMock
       ? '데모 날씨 · 서비스키 설정 시 실제 데이터'
