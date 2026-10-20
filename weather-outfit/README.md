@@ -18,6 +18,7 @@
 
 ## 문서
 
+- [00. 진행 기록](docs/00-progress-log.md): 지금까지 한 일, 현재 상태, 실행 방법, 다음 할 일
 - [01. 시장·경쟁 조사](docs/01-market-research.md)
 - [02. 서비스 기획서](docs/02-product-plan.md)
 - [03. 실제 서비스 연결 가이드](docs/03-setup-keys.md): 공공데이터·카카오·네이버·구글 키 발급, GitHub 보안, 서버 배포
