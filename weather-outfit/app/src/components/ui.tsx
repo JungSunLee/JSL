@@ -1,15 +1,19 @@
 import type { ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 import { colors, radius } from '@/lib/theme';
+import { useTone } from '@/lib/tone';
 
+/** 카드. 밝은 화면에서는 흰 카드+옅은 그림자, 몰입형(어두운) 화면에서는 반투명 유리 카드 */
 export function Card({ children, style }: { children: ReactNode; style?: StyleProp<ViewStyle> }) {
-  return <View style={[styles.card, style]}>{children}</View>;
+  const t = useTone();
+  return <View style={[styles.card, t.dark ? { backgroundColor: t.card, shadowOpacity: 0, elevation: 0 } : null, style]}>{children}</View>;
 }
 
 export function SectionTitle({ children, right }: { children: ReactNode; right?: ReactNode }) {
+  const t = useTone();
   return (
     <View style={styles.sectionRow}>
-      <Text style={styles.section}>{children}</Text>
+      <Text style={[styles.section, { color: t.text }]}>{children}</Text>
       {right}
     </View>
   );
@@ -44,27 +48,28 @@ export function Button({
   onPress,
   variant = 'primary',
   disabled,
+  icon,
 }: {
   title: string;
   onPress: () => void;
   variant?: 'primary' | 'ghost' | 'danger';
   disabled?: boolean;
+  /** 제목 왼쪽에 붙는 아이콘 */
+  icon?: ReactNode;
 }) {
+  const t = useTone();
+  const bg = variant === 'primary' ? (t.dark ? '#FFFFFF' : colors.primary) : 'transparent';
+  const border = variant === 'ghost' ? t.line : variant === 'danger' ? (t.dark ? 'rgba(255,179,190,0.6)' : '#F3C4CB') : 'transparent';
+  const fg = variant === 'primary' ? (t.dark ? colors.primary : '#FFFFFF') : variant === 'danger' ? (t.dark ? '#FFB3BE' : colors.warning) : t.dark ? '#FFFFFF' : colors.primary;
   return (
     <Pressable
       onPress={onPress}
       disabled={disabled}
       accessibilityRole="button"
-      style={({ pressed }) => [
-        styles.btn,
-        variant === 'ghost' && styles.btnGhost,
-        variant === 'danger' && styles.btnDanger,
-        (pressed || disabled) && { opacity: 0.6 },
-      ]}
+      style={({ pressed }) => [styles.btn, { backgroundColor: bg, borderColor: border, borderWidth: variant === 'primary' ? 0 : 1 }, (pressed || disabled) && { opacity: 0.6 }]}
     >
-      <Text style={[styles.btnText, variant !== 'primary' && { color: variant === 'danger' ? colors.warning : colors.primary }]}>
-        {title}
-      </Text>
+      {icon}
+      <Text style={[styles.btnText, { color: fg }]}>{title}</Text>
     </Pressable>
   );
 }
@@ -72,7 +77,7 @@ export function Button({
 export const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.card,
-    borderRadius: radius.md,
+    borderRadius: radius.lg,
     padding: 16,
     shadowColor: '#1B2A4A',
     shadowOpacity: 0.06,
@@ -96,8 +101,6 @@ export const styles = StyleSheet.create({
   chipOn: { backgroundColor: colors.primary, borderColor: colors.primary },
   chipText: { fontSize: 14, color: colors.text },
   chipTextOn: { color: '#fff', fontWeight: '600' },
-  btn: { backgroundColor: colors.primary, borderRadius: radius.sm, paddingVertical: 14, alignItems: 'center' },
-  btnGhost: { backgroundColor: 'transparent', borderWidth: 1, borderColor: colors.line },
-  btnDanger: { backgroundColor: 'transparent', borderWidth: 1, borderColor: '#F3C4CB' },
-  btnText: { color: '#fff', fontSize: 16, fontWeight: '700' },
+  btn: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 8, borderRadius: radius.sm + 2, paddingVertical: 14 },
+  btnText: { fontSize: 16, fontWeight: '700' },
 });

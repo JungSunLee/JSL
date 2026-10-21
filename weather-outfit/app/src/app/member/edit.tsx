@@ -16,7 +16,6 @@ import { Button, Chip } from '@/components/ui';
 import { colors, radius } from '@/lib/theme';
 import { useFamily } from '@/state/FamilyContext';
 
-const EMOJIS = ['🙂', '👩', '👨', '👵', '👴', '👧', '👦', '👶', '🧒', '🤰'];
 // '나'는 로그인 프로필로 관리하므로 가족 구성원 선택지에서 제외
 const RELATIONS = (Object.keys(RELATION_LABEL) as Relation[]).filter((r) => r !== 'me');
 const SENS: ThermalSensitivity[] = [-2, -1, 0, 1, 2];
@@ -69,13 +68,6 @@ function MemberForm({ existing }: { existing?: FamilyMember }) {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={s.wrap} keyboardShouldPersistTaps="handled">
-        <Text style={s.label}>프로필</Text>
-        <View style={s.wrapRow}>
-          {EMOJIS.map((e) => (
-            <Chip key={e} label={e} selected={m.emoji === e} onPress={() => set('emoji', e)} />
-          ))}
-        </View>
-
         <Text style={s.label}>이름</Text>
         <TextInput style={s.input} value={m.name} onChangeText={(v) => set('name', v)} placeholder="예: 엄마, 첫째" maxLength={12} />
 

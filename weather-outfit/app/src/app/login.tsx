@@ -2,6 +2,8 @@ import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { AppLogo } from '@/components/AppLogo';
+import { Icons } from '@/components/icons';
 import { api, type ProviderId } from '@/lib/api';
 import { colors, radius } from '@/lib/theme';
 import { LoginError, useAuth } from '@/state/AuthContext';
@@ -9,12 +11,12 @@ import { analytics } from '@/lib/analytics';
 import { useScreenView } from '@/lib/useScreenView';
 
 const BUTTONS: { id: ProviderId; label: string; bg: string; fg: string; mark: string; border?: string }[] = [
-  { id: 'kakao', label: '카카오로 시작하기', bg: colors.kakao, fg: colors.kakaoText, mark: '💬' },
+  { id: 'kakao', label: '카카오로 시작하기', bg: colors.kakao, fg: colors.kakaoText, mark: 'K' },
   { id: 'naver', label: '네이버로 시작하기', bg: colors.naver, fg: '#fff', mark: 'N' },
   { id: 'google', label: 'Google로 시작하기', bg: '#fff', fg: '#1F1F1F', mark: 'G', border: '#DADCE0' },
 ];
 
-const DEV_BUTTON = { id: 'dev' as const, label: '개발용 테스트 로그인', bg: '#EEF0F4', fg: colors.sub, mark: '🛠', border: '#EEF0F4' };
+const DEV_BUTTON = { id: 'dev' as const, label: '개발용 테스트 로그인', bg: '#EEF0F4', fg: colors.sub, mark: 'T', border: '#EEF0F4' };
 
 export default function Login() {
   useScreenView('login');
@@ -57,10 +59,12 @@ export default function Login() {
   return (
     <SafeAreaView style={s.wrap}>
       <Pressable onPress={close} style={s.closeBtn} accessibilityRole="button" accessibilityLabel="닫기">
-        <Text style={s.close}>✕</Text>
+        <Icons.X size={22} color={colors.sub} weight="bold" />
       </Pressable>
       <View style={s.brand}>
-        <Text style={s.logo}>🌤️👕</Text>
+        <View style={s.logo}>
+          <AppLogo size={88} light />
+        </View>
         <Text style={s.title}>날씨를 입다</Text>
         <Text style={s.subtitle}>로그인하면 내 체형과 온도감에 맞춘{'\n'}오늘 입을 옷을 추천해 드려요</Text>
       </View>
@@ -94,7 +98,7 @@ const s = StyleSheet.create({
   closeBtn: { alignSelf: 'flex-end', padding: 8 },
   close: { fontSize: 22, color: colors.sub },
   brand: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  logo: { fontSize: 64 },
+  logo: { marginBottom: 6 },
   title: { fontSize: 32, fontWeight: '800', color: colors.text, marginTop: 12 },
   subtitle: { fontSize: 17, color: colors.sub, textAlign: 'center', marginTop: 10, lineHeight: 25 },
   btn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', height: 52, borderRadius: radius.sm, marginBottom: 10, borderWidth: 1 },

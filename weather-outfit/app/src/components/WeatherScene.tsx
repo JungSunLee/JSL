@@ -17,6 +17,12 @@ export interface SceneProps {
   hour: number;
   width: number;
   height: number;
+  /** 해·달·구름이 모이는 위쪽 영역 높이. 화면 전체 배경으로 쓸 때 지정 (기본: height) */
+  focusHeight?: number;
+  /** 바닥 언덕 표시 여부 (전체 배경일 때는 끈다) */
+  hills?: boolean;
+  /** 하늘 그라디언트를 그리지 않고 해·구름·비만 그린다 (바깥에 같은 색 배경을 따로 깔 때) */
+  overlay?: boolean;
   style?: ViewStyle;
 }
 
@@ -153,7 +159,8 @@ function Drop({ x, height, delay, duration, snow }: { x: number; height: number;
   );
 }
 
-export function WeatherScene({ sky, precip, hour, width, height, style }: SceneProps) {
+export function WeatherScene({ sky, precip, hour, width, height, focusHeight, hills = true, overlay = false, style }: SceneProps) {
+  const fh = focusHeight ?? height;
   const phase = phaseOf(hour);
   const night = phase === 'night';
   const wet = precip !== 'none';
@@ -168,27 +175,27 @@ export function WeatherScene({ sky, precip, hour, width, height, style }: SceneP
 
   return (
     <View style={[{ width, height, overflow: 'hidden' }, style]}>
-      <LinearGradient colors={colors} style={StyleSheet.absoluteFill} />
+      {overlay ? null : <LinearGradient colors={colors} style={StyleSheet.absoluteFill} />}
 
       {/* 별 */}
       {stars.length
         ? Array.from({ length: 12 }).map((_, i) => (
-            <Star key={`s${i}`} x={stars[i * 3] * width} y={stars[i * 3 + 1] * height * 0.6} size={1.5 + stars[i * 3 + 2] * 2} delay={(i * 230) % 1500} />
+            <Star key={`s${i}`} x={stars[i * 3] * width} y={stars[i * 3 + 1] * fh * 0.6} size={1.5 + stars[i * 3 + 2] * 2} delay={(i * 230) % 1500} />
           ))
         : null}
 
       {/* 해 / 달 */}
       {!wet && sky !== 'cloudy' ? (
-        night ? <Moon x={width * 0.8} y={height * 0.3} size={26} /> : <Sun x={width * 0.8} y={height * 0.32} size={34} dim={phase !== 'day'} />
+        night ? <Moon x={width * 0.8} y={fh * 0.3} size={26} /> : <Sun x={width * 0.8} y={fh * 0.32} size={34} dim={phase !== 'day'} />
       ) : null}
       {/* 흐리거나 비 올 때도 희미한 해/달 자리 */}
-      {(wet || sky === 'cloudy') && !night ? <View style={{ position: 'absolute', left: width * 0.8 - 30, top: height * 0.32 - 30, width: 60, height: 60, borderRadius: 30, backgroundColor: '#FFFFFF', opacity: 0.12 }} /> : null}
+      {(wet || sky === 'cloudy') && !night ? <View style={{ position: 'absolute', left: width * 0.8 - 30, top: fh * 0.32 - 30, width: 60, height: 60, borderRadius: 30, backgroundColor: '#FFFFFF', opacity: 0.12 }} /> : null}
 
       {/* 구름 */}
       {Array.from({ length: cloudCount }).map((_, i) => (
         <Cloud
           key={`c${i}`}
-          y={height * (0.08 + rnd[i] * 0.45)}
+          y={fh * (0.08 + rnd[i] * 0.45)}
           scale={0.7 + rnd[i + 10] * 0.9}
           duration={28000 + rnd[i + 20] * 30000}
           delay={-rnd[i + 30] * 30000}
@@ -204,8 +211,12 @@ export function WeatherScene({ sky, precip, hour, width, height, style }: SceneP
       ))}
 
       {/* 바닥 언덕 (깊이감) */}
-      <View style={{ position: 'absolute', left: -width * 0.2, bottom: -height * 0.18, width: width * 0.9, height: height * 0.4, borderRadius: width, backgroundColor: 'rgba(0,0,0,0.10)' }} />
-      <View style={{ position: 'absolute', right: -width * 0.25, bottom: -height * 0.22, width: width, height: height * 0.42, borderRadius: width, backgroundColor: 'rgba(0,0,0,0.14)' }} />
+      {hills ? (
+        <>
+          <View style={{ position: 'absolute', left: -width * 0.2, bottom: -height * 0.18, width: width * 0.9, height: height * 0.4, borderRadius: width, backgroundColor: 'rgba(0,0,0,0.10)' }} />
+          <View style={{ position: 'absolute', right: -width * 0.25, bottom: -height * 0.22, width: width, height: height * 0.42, borderRadius: width, backgroundColor: 'rgba(0,0,0,0.14)' }} />
+        </>
+      ) : null}
     </View>
   );
 }

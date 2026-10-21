@@ -12,6 +12,7 @@ import {
 import { Redirect, router } from 'expo-router';
 import { useState } from 'react';
 import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Icons, type IconComponent } from '@/components/icons';
 import { Button, Chip } from '@/components/ui';
 import { ApiError } from '@/lib/api';
 import { colors, radius } from '@/lib/theme';
@@ -19,18 +20,18 @@ import { useAuth } from '@/state/AuthContext';
 import { analytics } from '@/lib/analytics';
 import { useScreenView } from '@/lib/useScreenView';
 
-const BODY_TYPES: { id: BodyType; emoji: string }[] = [
-  { id: 'slim', emoji: '🧍' },
-  { id: 'average', emoji: '🙂' },
-  { id: 'muscular', emoji: '💪' },
-  { id: 'heavy', emoji: '🐻' },
+const BODY_TYPES: { id: BodyType; icon: IconComponent }[] = [
+  { id: 'slim', icon: Icons.PersonSimple },
+  { id: 'average', icon: Icons.Person },
+  { id: 'muscular', icon: Icons.Barbell },
+  { id: 'heavy', icon: Icons.PersonArmsSpread },
 ];
-const SENS: { v: ThermalSensitivity; emoji: string }[] = [
-  { v: -2, emoji: '🥶' },
-  { v: -1, emoji: '🧣' },
-  { v: 0, emoji: '😊' },
-  { v: 1, emoji: '🌤️' },
-  { v: 2, emoji: '🥵' },
+const SENS: { v: ThermalSensitivity; icon: IconComponent; color: string }[] = [
+  { v: -2, icon: Icons.Snowflake, color: '#4C9BFF' },
+  { v: -1, icon: Icons.Wind, color: '#6FB4E8' },
+  { v: 0, icon: Icons.Smiley, color: colors.good },
+  { v: 1, icon: Icons.Sun, color: colors.caution },
+  { v: 2, icon: Icons.Fire, color: colors.warning },
 ];
 const ACTIVITIES = Object.keys(ACTIVITY_LABEL) as Activity[];
 const SEXES = Object.keys(SEX_LABEL) as Sex[];
@@ -99,7 +100,10 @@ function ProfileForm({ initial, initialName, firstTime }: { initial: UserProfile
       <ScrollView contentContainerStyle={s.wrap} keyboardShouldPersistTaps="handled">
         {firstTime ? (
           <View style={s.intro}>
-            <Text style={s.introTitle}>반가워요! 👋</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <Text style={s.introTitle}>반가워요!</Text>
+              <Icons.HandWaving size={24} color={colors.caution} weight="fill" />
+            </View>
             <Text style={s.introBody}>같은 날씨도 사람마다 다르게 느껴요.{'\n'}몇 가지만 알려주시면 나에게 맞는 옷차림를 추천해 드릴게요.</Text>
           </View>
         ) : null}
@@ -142,7 +146,7 @@ function ProfileForm({ initial, initialName, firstTime }: { initial: UserProfile
         <View style={s.grid}>
           {BODY_TYPES.map((b) => (
             <Pressable key={b.id} onPress={() => setBodyType(b.id)} style={[s.tile, bodyType === b.id && s.tileOn]} accessibilityRole="button" accessibilityState={{ selected: bodyType === b.id }}>
-              <Text style={s.tileEmoji}>{b.emoji}</Text>
+              <b.icon size={28} color={bodyType === b.id ? colors.primary : colors.sub} weight={bodyType === b.id ? 'fill' : 'regular'} />
               <Text style={[s.tileText, bodyType === b.id && s.tileTextOn]}>{BODY_TYPE_LABEL[b.id]}</Text>
             </Pressable>
           ))}
@@ -152,7 +156,9 @@ function ProfileForm({ initial, initialName, firstTime }: { initial: UserProfile
         <Text style={s.label}>온도감 — 평소 어떤 편인가요?</Text>
         {SENS.map((o) => (
           <Pressable key={o.v} onPress={() => setSensitivity(o.v)} style={[s.option, sensitivity === o.v && s.tileOn]} accessibilityRole="button" accessibilityState={{ selected: sensitivity === o.v }}>
-            <Text style={s.optionEmoji}>{o.emoji}</Text>
+            <View style={s.optionIcon}>
+              <o.icon size={22} color={o.color} weight="fill" />
+            </View>
             <Text style={[s.optionText, sensitivity === o.v && s.tileTextOn]}>{SENSITIVITY_LABEL[o.v]}</Text>
           </Pressable>
         ))}
@@ -167,7 +173,9 @@ function ProfileForm({ initial, initialName, firstTime }: { initial: UserProfile
 
         {firstTime ? (
           <Pressable onPress={() => setConsent(!consent)} style={s.consent} accessibilityRole="checkbox" accessibilityState={{ checked: consent }}>
-            <Text style={s.check}>{consent ? '☑️' : '⬜️'}</Text>
+            <View style={s.check}>
+              {consent ? <Icons.CheckSquare size={22} color={colors.primary} weight="fill" /> : <Icons.Square size={22} color={colors.faint} />}
+            </View>
             <Text style={s.consentText}>
               [필수] 키·몸무게·체형·온도감 정보를 옷차림 추천 목적으로 수집·이용하는 데 동의합니다. 정보는 탈퇴 시 즉시 삭제됩니다.
             </Text>
@@ -198,14 +206,13 @@ const s = StyleSheet.create({
   grid: { flexDirection: 'row', justifyContent: 'space-between' },
   tile: { width: '23.5%', alignItems: 'center', paddingVertical: 12, borderRadius: radius.sm, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.card },
   tileOn: { borderColor: colors.primary, backgroundColor: '#EEF3FF' },
-  tileEmoji: { fontSize: 26 },
   tileText: { fontSize: 13, color: colors.text, marginTop: 4 },
   tileTextOn: { color: colors.primary, fontWeight: '700' },
   option: { flexDirection: 'row', alignItems: 'center', padding: 12, borderRadius: radius.sm, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.card, marginBottom: 8 },
-  optionEmoji: { fontSize: 22, marginRight: 12 },
+  optionIcon: { width: 24, alignItems: 'center', marginRight: 12 },
   optionText: { fontSize: 15, color: colors.text },
   consent: { flexDirection: 'row', alignItems: 'flex-start', marginTop: 24, backgroundColor: colors.card, borderRadius: radius.sm, padding: 12 },
-  check: { fontSize: 18, marginRight: 8 },
+  check: { marginRight: 8, marginTop: -1 },
   consentText: { flex: 1, fontSize: 13, color: colors.sub, lineHeight: 19 },
   err: { color: colors.warning, fontSize: 12, marginTop: 6 },
 });

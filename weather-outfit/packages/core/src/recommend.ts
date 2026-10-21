@@ -149,24 +149,45 @@ const item = (slot: OutfitItem['slot'], name: string, category: string, warmth: 
   warmth,
 });
 
-/** 기온별 옷차림 단계표 (국내에서 널리 쓰이는 8단계 기준) */
+/**
+ * 기온별 옷차림 단계표. 2~3℃ 간격으로 촘촘하게 나누고, 두께(1~5)는 5단계 게이지로 묶는다.
+ * (개인 체감온도 기준)
+ */
 const TIERS: Tier[] = [
   {
-    min: 28,
+    min: 30,
     thickness: 1,
-    headline: '무더운 날, 최대한 시원하게',
+    headline: '폭염 수준, 최대한 가볍고 시원하게',
     outer: null,
     top: item('top', '민소매·린넨 반팔', 'top.sleeveless', 1),
-    bottom: item('bottom', '반바지·린넨 팬츠', 'bottom.shorts', 1),
+    bottom: item('bottom', '린넨 반바지', 'bottom.shorts', 1),
     shoes: item('shoes', '샌들', 'shoes.sandals', 1),
   },
   {
-    min: 23,
+    min: 27,
+    thickness: 1,
+    headline: '무더운 날, 통풍 잘 되는 옷으로',
+    outer: null,
+    top: item('top', '반팔 티셔츠·린넨 셔츠', 'top.tshirt', 1),
+    bottom: item('bottom', '반바지·린넨 팬츠', 'bottom.shorts', 1),
+    shoes: item('shoes', '샌들·통풍 운동화', 'shoes.sandals', 1),
+  },
+  {
+    min: 24,
     thickness: 1,
     headline: '반팔이 딱 좋은 날',
     outer: null,
-    top: item('top', '반팔 티셔츠·얇은 셔츠', 'top.tshirt', 1),
-    bottom: item('bottom', '면바지·반바지', 'bottom.cotton', 1),
+    top: item('top', '반팔 티셔츠', 'top.tshirt', 1),
+    bottom: item('bottom', '얇은 면바지·반바지', 'bottom.cotton', 1),
+    shoes: item('shoes', '운동화·스니커즈', 'shoes.sneakers', 2),
+  },
+  {
+    min: 22,
+    thickness: 2,
+    headline: '반팔에 얇은 셔츠 하나',
+    outer: null,
+    top: item('top', '반팔 + 얇은 셔츠', 'top.longsleeve', 2),
+    bottom: item('bottom', '면바지', 'bottom.cotton', 2),
     shoes: item('shoes', '운동화·스니커즈', 'shoes.sneakers', 2),
   },
   {
@@ -188,13 +209,22 @@ const TIERS: Tier[] = [
     shoes: item('shoes', '운동화', 'shoes.sneakers', 2),
   },
   {
-    min: 12,
+    min: 14,
     thickness: 3,
     headline: '자켓이 필요한 선선한 날',
-    outer: item('outer', '자켓·야상·바람막이', 'outer.jacket', 3),
+    outer: item('outer', '자켓·바람막이', 'outer.jacket', 3),
     top: item('top', '맨투맨·니트', 'top.knit', 3),
     bottom: item('bottom', '청바지', 'bottom.jeans', 3),
     shoes: item('shoes', '운동화·로퍼', 'shoes.sneakers', 2),
+  },
+  {
+    min: 12,
+    thickness: 3,
+    headline: '야상·자켓에 니트를 받쳐 입는 날',
+    outer: item('outer', '야상·자켓', 'outer.jacket', 3),
+    top: item('top', '니트 + 얇은 이너', 'top.knit', 3),
+    bottom: item('bottom', '청바지·면바지', 'bottom.jeans', 3),
+    shoes: item('shoes', '운동화·앵클부츠', 'shoes.boots', 3),
   },
   {
     min: 9,
@@ -206,23 +236,58 @@ const TIERS: Tier[] = [
     shoes: item('shoes', '운동화·앵클부츠', 'shoes.boots', 3),
   },
   {
-    min: 5,
+    min: 6,
     thickness: 4,
     headline: '코트와 히트텍을 챙기세요',
-    outer: item('outer', '울 코트·가죽자켓·경량패딩', 'outer.coat', 4),
+    outer: item('outer', '울 코트·경량패딩', 'outer.coat', 4),
     top: item('top', '히트텍 + 니트', 'top.thermal', 4),
     bottom: item('bottom', '기모 바지', 'bottom.fleece', 4),
     shoes: item('shoes', '부츠·운동화', 'shoes.boots', 3),
   },
   {
-    min: -Infinity,
+    min: 3,
+    thickness: 4,
+    headline: '두꺼운 코트나 패딩이 필요한 날',
+    outer: item('outer', '두꺼운 코트·패딩', 'outer.coat', 4),
+    top: item('top', '히트텍 + 두꺼운 니트', 'top.thermal', 4),
+    bottom: item('bottom', '기모 바지', 'bottom.fleece', 4),
+    shoes: item('shoes', '부츠', 'shoes.boots', 4),
+  },
+  {
+    min: 0,
     thickness: 5,
-    headline: '패딩 필수! 아주 추운 날',
-    outer: item('outer', '롱패딩·두꺼운 코트', 'outer.padding', 5),
+    headline: '패딩 필수! 추운 날',
+    outer: item('outer', '패딩', 'outer.padding', 5),
     top: item('top', '히트텍 + 두꺼운 니트', 'top.thermal', 5),
     bottom: item('bottom', '기모 바지·내복', 'bottom.fleece', 5),
     shoes: item('shoes', '방한 부츠', 'shoes.winterBoots', 5),
   },
+  {
+    min: -Infinity,
+    thickness: 5,
+    headline: '롱패딩에 내복까지, 아주 추운 날',
+    outer: item('outer', '롱패딩·두꺼운 패딩', 'outer.padding', 5),
+    top: item('top', '내복 + 히트텍 + 두꺼운 니트', 'top.thermal', 5),
+    bottom: item('bottom', '내복 + 기모 바지', 'bottom.fleece', 5),
+    shoes: item('shoes', '방한 부츠', 'shoes.winterBoots', 5),
+  },
+];
+
+/** 기온 구간 설명 (설정·도움말 화면용) */
+export const TIER_GUIDE: { range: string; thickness: 1 | 2 | 3 | 4 | 5; summary: string }[] = [
+  { range: '30℃ 이상', thickness: 1, summary: '민소매·린넨, 반바지, 샌들' },
+  { range: '27~29℃', thickness: 1, summary: '반팔·린넨 셔츠, 반바지' },
+  { range: '24~26℃', thickness: 1, summary: '반팔, 얇은 면바지' },
+  { range: '22~23℃', thickness: 2, summary: '반팔 + 얇은 셔츠' },
+  { range: '20~21℃', thickness: 2, summary: '얇은 긴팔·블라우스' },
+  { range: '17~19℃', thickness: 2, summary: '얇은 가디건, 맨투맨' },
+  { range: '14~16℃', thickness: 3, summary: '자켓·바람막이, 니트' },
+  { range: '12~13℃', thickness: 3, summary: '야상·자켓 + 니트' },
+  { range: '9~11℃', thickness: 3, summary: '트렌치코트·점퍼' },
+  { range: '6~8℃', thickness: 4, summary: '울 코트·경량패딩 + 히트텍' },
+  { range: '3~5℃', thickness: 4, summary: '두꺼운 코트·패딩, 기모' },
+  { range: '0~2℃', thickness: 5, summary: '패딩, 히트텍, 내복' },
+  { range: '0℃ 미만', thickness: 5, summary: '롱패딩, 내복, 방한 부츠' },
 ];
 
 export function tierFor(temp: number): Tier {
@@ -414,6 +479,8 @@ export function recommendOutfit(
 
   return {
     memberId: member.id,
+    temp: weather.temp,
+    feelsLike: base,
     personalFeelsLike: personal,
     thickness: tier.thickness,
     headline: tier.headline,

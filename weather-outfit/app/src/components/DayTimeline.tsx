@@ -1,6 +1,8 @@
-import { recommendOutfit, weatherEmoji, type FamilyMember, type HourlyForecast, type WeatherSnapshot } from '@wo/core';
+import { recommendOutfit, type FamilyMember, type HourlyForecast, type WeatherSnapshot } from '@wo/core';
 import { StyleSheet, Text, View } from 'react-native';
-import { colors, radius, THICKNESS_LABEL } from '@/lib/theme';
+import { Icons, WeatherIcon } from './icons';
+import { radius, THICKNESS_LABEL } from '@/lib/theme';
+import { useTone } from '@/lib/tone';
 
 /**
  * 하루 옷차림 흐름: 아침(등원·출근) → 낮 → 저녁(하원·퇴근) 시간대별로
@@ -19,6 +21,7 @@ function pick(hourly: HourlyForecast[], hour: number): HourlyForecast | undefine
 }
 
 export function DayTimeline({ weather, member }: { weather: WeatherSnapshot; member: FamilyMember }) {
+  const t = useTone();
   const points = SLOTS.map((slot) => {
     const h = pick(weather.hourly, slot.hour);
     if (!h) return null;
@@ -30,27 +33,34 @@ export function DayTimeline({ weather, member }: { weather: WeatherSnapshot; mem
 
   const levels = points.map((p) => p.rec.thickness);
   const spread = Math.max(...levels) - Math.min(...levels);
+  const fill = t.dark ? '#FFFFFF' : t.accent;
 
   return (
-    <View style={s.card}>
+    <View style={[s.card, { backgroundColor: t.card }]}>
       <View style={s.head}>
-        <Text style={s.title}>{member.id === 'generic' ? '하루 옷차림 흐름' : `${member.name}의 하루 옷차림 흐름`}</Text>
-        <Text style={s.hint}>{spread >= 1 ? '시간대별로 옷 두께가 달라요 — 겉옷을 챙기세요' : '하루 종일 비슷하게 입으면 돼요'}</Text>
+        <Text style={[s.title, { color: t.text }]}>{member.id === 'generic' ? '하루 옷차림 흐름' : `${member.name}의 하루 옷차림 흐름`}</Text>
+        <Text style={[s.hint, { color: t.sub }]}>{spread >= 1 ? '시간대별로 옷 두께가 달라요. 겉옷을 챙기세요' : '하루 종일 비슷하게 입으면 돼요'}</Text>
       </View>
       <View style={s.row}>
         {points.map((p, i) => (
           <View key={p.label} style={s.col}>
-            <Text style={s.slot}>{p.label}</Text>
-            <Text style={s.icon}>{weatherEmoji(p.h.sky, p.h.precipType)}</Text>
-            <Text style={s.temp}>{Math.round(p.h.temp)}°</Text>
+            <Text style={[s.slot, { color: t.sub }]}>{p.label}</Text>
+            <View style={{ marginTop: 6 }}>
+              <WeatherIcon sky={p.h.sky} precip={p.h.precipType} night={p.hour >= 19 || p.hour < 6} size={26} color={t.text} />
+            </View>
+            <Text style={[s.temp, { color: t.text }]}>{Math.round(p.h.temp)}°</Text>
             <View style={s.meter}>
               {[1, 2, 3, 4, 5].map((n) => (
-                <View key={n} style={[s.bar, n <= p.rec.thickness && { backgroundColor: colors.primary }]} />
+                <View key={n} style={[s.bar, { backgroundColor: n <= p.rec.thickness ? fill : t.line }]} />
               ))}
             </View>
-            <Text style={s.thick}>{THICKNESS_LABEL[p.rec.thickness]}</Text>
-            <Text style={s.outer} numberOfLines={2}>{p.outer ? p.outer.name.replace('챙겨갈 겉옷: ', '') : '겉옷 없이'}</Text>
-            {i < points.length - 1 ? <Text style={s.arrow}>›</Text> : null}
+            <Text style={[s.thick, { color: t.sub }]}>{THICKNESS_LABEL[p.rec.thickness]}</Text>
+            <Text style={[s.outer, { color: t.text }]} numberOfLines={2}>{p.outer ? p.outer.name.replace('챙겨갈 겉옷: ', '') : '겉옷 없이'}</Text>
+            {i < points.length - 1 ? (
+              <View style={s.arrow}>
+                <Icons.CaretRight size={14} color={t.faint} weight="bold" />
+              </View>
+            ) : null}
           </View>
         ))}
       </View>
@@ -59,18 +69,17 @@ export function DayTimeline({ weather, member }: { weather: WeatherSnapshot; mem
 }
 
 const s = StyleSheet.create({
-  card: { backgroundColor: colors.card, borderRadius: radius.md, padding: 14, marginBottom: 12 },
-  head: { marginBottom: 10 },
-  title: { fontSize: 14, fontWeight: '700', color: colors.text },
-  hint: { fontSize: 12, color: colors.sub, marginTop: 2 },
+  card: { borderRadius: radius.lg, padding: 16, marginBottom: 12 },
+  head: { marginBottom: 12 },
+  title: { fontSize: 15, fontWeight: '700' },
+  hint: { fontSize: 12, marginTop: 2 },
   row: { flexDirection: 'row' },
   col: { flex: 1, alignItems: 'center', position: 'relative' },
-  slot: { fontSize: 12, color: colors.sub, fontWeight: '600' },
-  icon: { fontSize: 22, marginTop: 4 },
-  temp: { fontSize: 18, fontWeight: '700', color: colors.text, marginTop: 2 },
+  slot: { fontSize: 12, fontWeight: '600' },
+  temp: { fontSize: 20, fontWeight: '700', marginTop: 4 },
   meter: { flexDirection: 'row', marginTop: 6, gap: 2 },
-  bar: { width: 9, height: 5, borderRadius: 2, backgroundColor: colors.line },
-  thick: { fontSize: 11, color: colors.sub, marginTop: 4 },
-  outer: { fontSize: 11, color: colors.text, textAlign: 'center', marginTop: 2, paddingHorizontal: 4 },
-  arrow: { position: 'absolute', right: -6, top: 34, fontSize: 20, color: colors.faint },
+  bar: { width: 9, height: 5, borderRadius: 2 },
+  thick: { fontSize: 11, marginTop: 4 },
+  outer: { fontSize: 11, textAlign: 'center', marginTop: 2, paddingHorizontal: 4 },
+  arrow: { position: 'absolute', right: -7, top: 44 },
 });

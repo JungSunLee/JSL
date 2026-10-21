@@ -1,9 +1,11 @@
 import { router } from 'expo-router';
-import { StyleSheet, Text } from 'react-native';
-import { colors } from '@/lib/theme';
-import { useAuth } from '@/state/AuthContext';
-import { analytics } from '@/lib/analytics';
+import { StyleSheet, Text, View } from 'react-native';
+import { Icons } from './icons';
 import { Button, Card } from './ui';
+import { analytics } from '@/lib/analytics';
+import { colors } from '@/lib/theme';
+import { useTone } from '@/lib/tone';
+import { useAuth } from '@/state/AuthContext';
 
 /**
  * 일반 기준 옷차림 아래에 붙는 "나에게 딱 맞는 추천" 버튼.
@@ -11,12 +13,16 @@ import { Button, Card } from './ui';
  */
 export function OutfitGate({ what = '나에게 딱 맞는 옷차림' }: { what?: string }) {
   const { user } = useAuth();
+  const t = useTone();
   if (user && !user.needsOnboarding) return null;
   const needsLogin = !user;
   return (
-    <Card style={s.cta}>
-      <Text style={s.title}>✨ {what} 추천받기</Text>
-      <Text style={s.body}>
+    <Card style={[s.cta, { backgroundColor: t.dark ? t.cardStrong : '#EEF3FF' }]}>
+      <View style={s.titleRow}>
+        <Icons.Sparkle size={18} color={t.dark ? '#FFE07A' : colors.primary} weight="fill" />
+        <Text style={[s.title, { color: t.text }]}>{what} 추천받기</Text>
+      </View>
+      <Text style={[s.body, { color: t.sub }]}>
         위 추천은 성인 평균 기준이에요. 키·체형, 추위·더위를 타는 정도, 가족 구성원까지 반영하면 훨씬 정확해져요.
         {needsLogin ? ' (로그인 필요)' : ''}
       </Text>
@@ -32,7 +38,8 @@ export function OutfitGate({ what = '나에게 딱 맞는 옷차림' }: { what?:
 }
 
 const s = StyleSheet.create({
-  cta: { backgroundColor: '#EEF3FF', marginBottom: 12 },
-  title: { fontSize: 17, fontWeight: '700', color: colors.text },
-  body: { fontSize: 14, color: colors.sub, marginVertical: 10, lineHeight: 21 },
+  cta: { marginBottom: 12 },
+  titleRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  title: { fontSize: 17, fontWeight: '700' },
+  body: { fontSize: 14, marginVertical: 10, lineHeight: 21 },
 });

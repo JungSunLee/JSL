@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
-import { Animated, Easing, StyleSheet, Text } from 'react-native';
+import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { AppLogo } from './AppLogo';
 import { APP_NAME } from '@/lib/brand';
 
 /**
@@ -25,8 +26,11 @@ export function Splash({ visible }: { visible: boolean }) {
 
   return (
     <Animated.View pointerEvents={visible ? 'auto' : 'none'} style={[StyleSheet.absoluteFill, { opacity: fade, zIndex: 100 }]}>
-      <LinearGradient colors={['#2F80ED', '#7FC8FF']} style={s.bg}>
-        <Animated.Text style={[s.logo, { transform: [{ scale: pop }] }]}>🌤️</Animated.Text>
+      <LinearGradient colors={['#2F80ED', '#5FAFFF', '#A9DBFF']} style={s.bg}>
+        <Animated.View style={[s.logo, { transform: [{ scale: pop }] }]}>
+          <View style={s.logoGlow} />
+          <AppLogo size={120} />
+        </Animated.View>
         <Animated.View style={{ transform: [{ translateY: rise }], alignItems: 'center' }}>
           <Text style={s.title}>{APP_NAME}</Text>
           <Text style={s.sub}>오늘 날씨에 딱 맞는 우리 가족 옷차림</Text>
@@ -37,8 +41,9 @@ export function Splash({ visible }: { visible: boolean }) {
 }
 
 const s = StyleSheet.create({
-  bg: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 14 },
-  logo: { fontSize: 84 },
+  bg: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 22 },
+  logo: { alignItems: 'center', justifyContent: 'center' },
+  logoGlow: { position: 'absolute', width: 160, height: 160, borderRadius: 80, backgroundColor: 'rgba(255,255,255,0.10)' },
   title: { color: '#fff', fontSize: 30, fontWeight: '800', letterSpacing: -0.5 },
   sub: { color: 'rgba(255,255,255,0.9)', fontSize: 15, marginTop: 6 },
 });

@@ -1,5 +1,6 @@
 import Constants from 'expo-constants';
 import { Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { AppLogo } from '@/components/AppLogo';
 import { API_BASE_URL } from '@/lib/config';
 import { APP_NAME, APP_VERSION } from '@/lib/brand';
 import { DEMO_MODE } from '@/lib/demo';
@@ -20,7 +21,9 @@ export default function About() {
   return (
     <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
       <View style={s.hero}>
-        <Text style={s.logo}>🌤️👕</Text>
+        <View style={s.logo}>
+          <AppLogo size={72} light />
+        </View>
         <Text style={s.name}>{APP_NAME}</Text>
         <Text style={s.tag}>오늘 날씨에 딱 맞는 우리 가족 옷차림</Text>
       </View>
@@ -45,7 +48,7 @@ export default function About() {
 
 const s = StyleSheet.create({
   hero: { alignItems: 'center', paddingVertical: 20 },
-  logo: { fontSize: 48 },
+  logo: { marginBottom: 6 },
   name: { fontSize: 22, fontWeight: '800', color: colors.text, marginTop: 8 },
   tag: { fontSize: 13, color: colors.sub, marginTop: 4 },
   card: { backgroundColor: colors.card, borderRadius: radius.md, padding: 16, marginBottom: 12 },

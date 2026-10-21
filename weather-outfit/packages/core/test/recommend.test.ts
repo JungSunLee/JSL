@@ -9,10 +9,24 @@ const adult: FamilyMember = { id: 'me', name: '나', relation: 'me', birthYear: 
 const slots = (r: ReturnType<typeof recommendOutfit>) => r.items.map((i) => i.category);
 
 describe('recommendOutfit', () => {
-  it('15℃ 성인 → 자켓 단계', () => {
+  it('15℃ 성인 → 자켓 단계, 기온·체감·개인 체감이 함께 나온다', () => {
     const r = recommendOutfit(base, adult, { now });
     expect(r.thickness).toBe(3);
     expect(slots(r)).toContain('outer.jacket');
+    expect(r.temp).toBe(15);
+    expect(r.feelsLike).toBe(15);
+    expect(r.personalFeelsLike).toBe(15);
+  });
+
+  it('기온 구간이 2~3℃ 간격으로 촘촘하다', () => {
+    const t = (temp: number) => recommendOutfit({ ...base, temp }, adult, { now });
+    expect(t(28).items.find((i) => i.slot === 'top')?.name).toContain('반팔');
+    expect(t(22).items.find((i) => i.slot === 'top')?.name).toContain('얇은 셔츠');
+    expect(t(13).items.find((i) => i.slot === 'outer')?.name).toContain('야상');
+    expect(t(4).thickness).toBe(4);
+    expect(t(1).thickness).toBe(5);
+    expect(t(1).items.find((i) => i.slot === 'outer')?.name).toBe('패딩');
+    expect(t(-2).items.find((i) => i.slot === 'outer')?.name).toContain('롱패딩');
   });
 
   it('추위를 많이 타는 어머니는 같은 날씨에 더 두껍게', () => {

@@ -110,6 +110,10 @@ export interface CareAlert {
 
 export interface OutfitRecommendation {
   memberId: string;
+  /** 현재 기온 */
+  temp: number;
+  /** 기상청 산출식 체감온도 (보정 전) */
+  feelsLike: number;
   /** 개인 보정 후 체감 온도 */
   personalFeelsLike: number;
   /** 전체 두께 단계 1~5 */
