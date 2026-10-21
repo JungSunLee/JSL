@@ -1,7 +1,10 @@
-import { RELATION_LABEL, type FamilyMember, type OutfitRecommendation } from '@wo/core';
+import { ageOf, RELATION_LABEL, type FamilyMember, type OutfitRecommendation, type OutfitSlot } from '@wo/core';
+import { OutfitFigure } from './OutfitFigure';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { colors, radius, THICKNESS_LABEL } from '@/lib/theme';
-import { Chip } from './ui';
+
+const SLOT_LABEL: Record<OutfitSlot, string> = { outer: '겉옷', top: '상의', bottom: '하의', shoes: '신발', accessory: '챙길 것' };
+const SLOTS: OutfitSlot[] = ['outer', 'top', 'bottom', 'shoes', 'accessory'];
 
 const LEVEL_COLOR = { info: colors.primary, caution: colors.caution, warning: colors.warning } as const;
 
@@ -56,10 +59,20 @@ export function OutfitCard({
         </View>
       </View>
       <ThicknessMeter level={rec.thickness} />
-      <View style={s.items}>
-        {rec.items.map((i) => (
-          <Chip key={`${i.slot}-${i.category}-${i.name}`} label={i.name} tone="soft" />
-        ))}
+      <View style={s.body}>
+        <OutfitFigure rec={rec} kid={ageOf(member.birthYear) < 13} />
+        <View style={s.list}>
+          {SLOTS.map((slot) => {
+            const items = rec.items.filter((i) => i.slot === slot);
+            if (!items.length) return null;
+            return (
+              <View key={slot} style={s.slotRow}>
+                <Text style={s.slotLabel}>{SLOT_LABEL[slot]}</Text>
+                <Text style={s.slotText}>{items.map((i) => i.name.replace('챙겨갈 겉옷: ', '')).join(', ')}</Text>
+              </View>
+            );
+          })}
+        </View>
       </View>
       {topAlert ? (
         <Text style={[s.alert, { color: LEVEL_COLOR[topAlert.level] }]}>
@@ -83,6 +96,10 @@ const s = StyleSheet.create({
   meterRow: { flexDirection: 'row', alignItems: 'center', marginTop: 12, marginBottom: 10 },
   meterBar: { flex: 1, height: 6, borderRadius: 3, backgroundColor: colors.line, marginRight: 4 },
   meterLabel: { fontSize: 12, color: colors.sub, marginLeft: 6, width: 64 },
-  items: { flexDirection: 'row', flexWrap: 'wrap' },
+  body: { flexDirection: 'row', alignItems: 'flex-start' },
+  list: { flex: 1, marginLeft: 6, paddingTop: 4 },
+  slotRow: { marginBottom: 8 },
+  slotLabel: { fontSize: 11, fontWeight: '700', color: colors.faint, letterSpacing: 0.3 },
+  slotText: { fontSize: 14, color: colors.text, lineHeight: 20, marginTop: 1 },
   alert: { fontSize: 13, marginTop: 6, fontWeight: '600' },
 });

@@ -1,7 +1,8 @@
-import { recommendOutfit, RELATION_LABEL, type OutfitSlot } from '@wo/core';
+import { ageOf, recommendOutfit, RELATION_LABEL, type OutfitSlot } from '@wo/core';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { ThicknessMeter } from '@/components/OutfitCard';
+import { OutfitFigure } from '@/components/OutfitFigure';
 import { Button, Card, Chip, SectionTitle } from '@/components/ui';
 import { colors } from '@/lib/theme';
 import { useOutfitMembers } from '@/state/useOutfitMembers';
@@ -57,6 +58,9 @@ export default function MemberDetail() {
 
       <SectionTitle>오늘 입을 옷</SectionTitle>
       <Card>
+        <View style={{ alignItems: 'center', marginBottom: 8 }}>
+          <OutfitFigure rec={rec} kid={ageOf(member.birthYear) < 13} size="lg" />
+        </View>
         {SLOTS.map((slot) => {
           const items = rec.items.filter((i) => i.slot === slot);
           if (!items.length) return null;
