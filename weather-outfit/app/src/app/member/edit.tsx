@@ -117,7 +117,7 @@ function MemberForm({ existing }: { existing?: FamilyMember }) {
         ) : (
           <View style={s.consent}>
             <Text style={s.consentText}>
-              천식·아토피·임신 등 건강 상태를 반영하려면 민감정보 수집·이용 동의가 필요해요. 정보는 이 기기에만 저장되고 코디 추천에만 쓰여요.
+              천식·아토피·임신 등 건강 상태를 반영하려면 민감정보 수집·이용 동의가 필요해요. 정보는 이 기기에만 저장되고 옷차림 추천에만 쓰여요.
             </Text>
             <Button title="동의하고 입력하기" variant="ghost" onPress={() => setHealthConsent(true)} />
           </View>

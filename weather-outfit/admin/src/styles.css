@@ -23,6 +23,8 @@ body {
 a { color: var(--primary); text-decoration: none; }
 h1 { font-size: 24px; margin: 4px 0 20px; }
 h3 { font-size: 15px; margin: 0 0 14px; }
+h2.section { font-size: 15px; font-weight: 700; color: var(--sub); margin: 28px 0 10px; letter-spacing: .02em; }
+h2.section:first-of-type { margin-top: 4px; }
 code { font-size: 12px; background: var(--bg); padding: 2px 6px; border-radius: 6px; }
 .muted { color: var(--faint); }
 .error { color: var(--danger); }
@@ -81,8 +83,8 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--primary-sof
 }
 .cols3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 .cols2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
-.hrow { display: grid; grid-template-columns: 72px 1fr 64px; align-items: center; gap: 10px; margin-bottom: 10px; }
-.hlabel { color: var(--sub); font-size: 13px; }
+.hrow { display: grid; grid-template-columns: minmax(72px, 40%) 1fr 64px; align-items: center; gap: 10px; margin-bottom: 10px; }
+.hlabel { color: var(--sub); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .htrack { height: 10px; background: var(--bg); border-radius: 5px; overflow: hidden; }
 .hfill { display: block; height: 100%; background: var(--primary); border-radius: 0 5px 5px 0; }
 .hval { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }

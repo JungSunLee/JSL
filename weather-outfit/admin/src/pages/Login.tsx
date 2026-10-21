@@ -31,7 +31,7 @@ export function Login({ onLogin }: { onLogin: (token: string) => void }) {
     <div className="login-wrap">
       <form className="login card" onSubmit={submit}>
         <div className="login-logo">🌤️👕</div>
-        <h1>옷날씨 관리자</h1>
+        <h1>날씨를 입다 관리자</h1>
         <p className="muted">관리자 계정으로 로그인하세요.</p>
         <label>
           이메일

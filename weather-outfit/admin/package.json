@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "우리집 옷날씨 관리자 홈페이지 (회원 관리·통계)",
+  "description": "날씨를 입다 관리자 홈페이지 (회원 관리·통계)",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

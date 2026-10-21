@@ -5,7 +5,7 @@ import { useFamily } from './FamilyContext';
 
 export const ME_ID = 'me';
 
-/** 코디 추천 대상: 로그인 + 프로필이 있으면 [나, ...가족], 아니면 빈 목록 */
+/** 옷차림 추천 대상: 로그인 + 프로필이 있으면 [나, ...가족], 아니면 빈 목록 */
 export function useOutfitMembers(): FamilyMember[] {
   const { user } = useAuth();
   const { members } = useFamily();

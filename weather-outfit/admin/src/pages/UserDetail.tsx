@@ -33,7 +33,7 @@ export function UserDetailPage({ id }: { id: string }) {
 
   const toggleStatus = async () => {
     const next = u.status === 'active' ? 'suspended' : 'active';
-    const msg = next === 'suspended' ? `${u.name}님의 이용을 정지할까요? 앱 로그인과 코디 추천이 차단됩니다.` : `${u.name}님의 이용 정지를 해제할까요?`;
+    const msg = next === 'suspended' ? `${u.name}님의 이용을 정지할까요? 앱 로그인과 옷차림 추천이 차단됩니다.` : `${u.name}님의 이용 정지를 해제할까요?`;
     if (!confirm(msg)) return;
     setU(await api.updateUser(u.id, { status: next }));
     flash(next === 'suspended' ? '이용을 정지했어요' : '정지를 해제했어요');
@@ -65,7 +65,7 @@ export function UserDetailPage({ id }: { id: string }) {
           <Row k="최근 로그인" v={fmtDate(u.lastLoginAt)} />
         </div>
         <div className="card">
-          <h3>코디 프로필</h3>
+          <h3>옷차림 프로필</h3>
           {p ? (
             <>
               <Row k="출생연도" v={`${p.birthYear}년 (${new Date().getFullYear() - p.birthYear}세)`} />

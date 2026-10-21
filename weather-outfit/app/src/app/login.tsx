@@ -5,6 +5,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { api, type ProviderId } from '@/lib/api';
 import { colors, radius } from '@/lib/theme';
 import { LoginError, useAuth } from '@/state/AuthContext';
+import { analytics } from '@/lib/analytics';
+import { useScreenView } from '@/lib/useScreenView';
 
 const BUTTONS: { id: ProviderId; label: string; bg: string; fg: string; mark: string; border?: string }[] = [
   { id: 'kakao', label: '카카오로 시작하기', bg: colors.kakao, fg: colors.kakaoText, mark: '💬' },
@@ -15,6 +17,7 @@ const BUTTONS: { id: ProviderId; label: string; bg: string; fg: string; mark: st
 const DEV_BUTTON = { id: 'dev' as const, label: '개발용 테스트 로그인', bg: '#EEF0F4', fg: colors.sub, mark: '🛠', border: '#EEF0F4' };
 
 export default function Login() {
+  useScreenView('login');
   const { signIn } = useAuth();
   const [enabled, setEnabled] = useState<Record<string, boolean> | null>(null);
   const [busy, setBusy] = useState<ProviderId | null>(null);
@@ -29,6 +32,7 @@ export default function Login() {
   const close = () => (router.canGoBack() ? router.back() : router.replace('/'));
 
   const onLogin = async (id: ProviderId) => {
+    analytics.tap('login', `provider_${id}`);
     if (enabled && !enabled[id]) {
       Alert.alert('준비 중', '아직 이 로그인 방식이 서버에 설정되지 않았어요.');
       return;
@@ -37,6 +41,7 @@ export default function Login() {
     try {
       const me = await signIn(id);
       if (!me) return;
+      analytics.event(me.needsOnboarding ? 'signup' : 'login_success', 'login', { provider: id });
       if (me.needsOnboarding) router.replace('/onboarding');
       else close();
     } catch (e) {
@@ -56,8 +61,8 @@ export default function Login() {
       </Pressable>
       <View style={s.brand}>
         <Text style={s.logo}>🌤️👕</Text>
-        <Text style={s.title}>우리집 옷날씨</Text>
-        <Text style={s.subtitle}>로그인하면 내 체형과 온도감에 맞춘{'\n'}오늘의 코디를 추천해 드려요</Text>
+        <Text style={s.title}>날씨를 입다</Text>
+        <Text style={s.subtitle}>로그인하면 내 체형과 온도감에 맞춘{'\n'}오늘 입을 옷을 추천해 드려요</Text>
       </View>
       <View>
         {buttons.map((b) => (

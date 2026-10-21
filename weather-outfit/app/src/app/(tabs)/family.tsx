@@ -7,8 +7,10 @@ import { colors, radius } from '@/lib/theme';
 import { useFamily } from '@/state/FamilyContext';
 import { OutfitGate } from '@/components/LoginPrompt';
 import { useAuth } from '@/state/AuthContext';
+import { useScreenView } from '@/lib/useScreenView';
 
 export default function Family() {
+  useScreenView('family');
   const { members } = useFamily();
   const { user } = useAuth();
   const ready = !!user?.profile;
@@ -16,8 +18,8 @@ export default function Family() {
     <SafeAreaView style={{ flex: 1 }} edges={['top']}>
       <ScrollView contentContainerStyle={{ padding: 16 }}>
         <Text style={s.title}>우리 가족</Text>
-        <Text style={s.sub}>구성원별로 체감 온도를 다르게 계산해 코디를 추천해요.</Text>
-        {!ready ? <OutfitGate what="우리 가족 맞춤 코디" /> : null}
+        <Text style={s.sub}>구성원별로 체감 온도를 다르게 계산해 입을 옷을 추천해요.</Text>
+        {!ready ? <OutfitGate what="우리 가족 맞춤 옷차림" /> : null}
         {ready && members.map((m) => (
           <Pressable
             key={m.id}

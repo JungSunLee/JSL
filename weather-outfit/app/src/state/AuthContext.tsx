@@ -11,7 +11,7 @@ WebBrowser.maybeCompleteAuthSession();
 const TOKEN_KEY = 'auth.token';
 
 /**
- * 로그인은 선택. 날씨는 누구나 보고, 코디 추천은 로그인 + 프로필 입력 후 제공한다.
+ * 로그인은 선택. 날씨는 누구나 보고, 옷차림 추천은 로그인 + 프로필 입력 후 제공한다.
  */
 interface AuthState {
   ready: boolean;

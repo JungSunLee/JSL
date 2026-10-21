@@ -99,7 +99,7 @@ export function createProviders(config: Config, f: FetchLike = fetch): Record<Pr
   };
 
   /**
-   * 개발용 테스트 로그인: 소셜 키 없이 로그인 이후 화면(온보딩·코디 추천)을 확인하기 위함.
+   * 개발용 테스트 로그인: 소셜 키 없이 로그인 이후 화면(온보딩·옷차림 추천)을 확인하기 위함.
    * ALLOW_DEV_LOGIN=true 이고 운영 환경이 아닐 때만 켜진다.
    */
   const dev: OAuthProvider = {

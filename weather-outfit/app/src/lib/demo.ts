@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { Me, ProviderId } from './api';
 
 /**
- * 데모 모드: 서버 없이 앱 전체 흐름(날씨 → 로그인 → 내 정보 → 코디)을 둘러볼 수 있다.
+ * 데모 모드: 서버 없이 앱 전체 흐름(날씨 → 로그인 → 내 정보 → 옷차림)을 둘러볼 수 있다.
  * EXPO_PUBLIC_DEMO=1 로 빌드하면 켜진다. 로그인·프로필은 이 기기(브라우저)에만 저장된다.
  */
 export const DEMO_MODE = process.env.EXPO_PUBLIC_DEMO === '1';

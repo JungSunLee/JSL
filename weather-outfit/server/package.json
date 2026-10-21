@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "우리집 옷날씨 API — 기상청/에어코리아 프록시 · 캐시, 소셜 로그인(네이버·카카오·구글)",
+  "description": "날씨를 입다 API — 기상청/에어코리아 프록시 · 캐시, 소셜 로그인(네이버·카카오·구글)",
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "start": "tsx src/index.ts",

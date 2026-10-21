@@ -38,6 +38,15 @@ export interface Stats {
   bySensitivity: Record<string, number>;
   byBodyType: Record<string, number>;
   signupsByDay: { date: string; count: number }[];
+  usage: {
+    dau: number;
+    wau: number;
+    mau: number;
+    totalEvents: number;
+    dauByDay: { date: string; count: number }[];
+    topTaps: { screen: string; target: string; count: number }[];
+    topScreens: { screen: string; count: number }[];
+  };
 }
 
 const TOKEN_KEY = 'admin.token';
@@ -95,3 +104,18 @@ export const ACTIVITY_LABEL: Record<string, string> = { indoor: '주로 실내',
 
 export const fmtDate = (iso: string) =>
   new Date(iso).toLocaleString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+
+/** 로그에 쓰이는 화면·버튼 이름을 사람이 읽기 쉽게 */
+export const SCREEN_LABEL: Record<string, string> = {
+  today: '오늘', login: '로그인', onboarding: '내 정보 입력', member_detail: '옷차림 상세', family: '가족', menu: '메뉴',
+  notifications: '알림 설정', about: '앱 정보',
+};
+export const TARGET_LABEL: Record<string, string> = {
+  login_gate: '로그인하고 추천 받기', onboarding_gate: '내 정보 입력하기', outfit_card: '옷차림 카드', edit_member: '정보 수정',
+  add_family: '+ 가족', add_family_card: '가족 구성원 추가(카드)', refresh: '당겨서 새로고침', shop_button: '쇼핑 버튼',
+  provider_kakao: '카카오 로그인', provider_naver: '네이버 로그인', provider_google: '구글 로그인', provider_dev: '테스트 로그인',
+  family: '가족 정보 관리', notifications: '알림 설정', widget: '홈 화면 위젯', shop: '날씨 맞춤 쇼핑', promo_opt_in: '혜택 소식 켬',
+  promo_opt_out: '혜택 소식 끔', location_on: '현재 위치 켬', location_off: '현재 위치 끔', my_profile: '내 프로필', about: '앱 정보',
+  logout: '로그아웃', notice: '공지사항', contact: '문의하기', privacy: '개인정보처리방침', terms: '이용약관',
+};
+export const label = (map: Record<string, string>, key: string) => map[key] ?? key;

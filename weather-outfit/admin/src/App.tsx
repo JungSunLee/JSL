@@ -34,7 +34,7 @@ export function App() {
   return (
     <div className="shell">
       <aside className="side">
-        <div className="brand">🌤️ 옷날씨 <small>관리자</small></div>
+        <div className="brand">🌤️ 날씨를 입다 <small>관리자</small></div>
         <nav>
           <a href="#/" className={page === 'dashboard' ? 'on' : ''}>📊 대시보드</a>
           <a href="#/users" className={page === 'users' ? 'on' : ''}>👥 회원 관리</a>

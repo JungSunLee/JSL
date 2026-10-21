@@ -1,6 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import type { DatabaseSync } from 'node:sqlite';
 import type { UserProfile } from '@wo/core';
 import type { ProviderId, SocialProfile } from './providers';
 
@@ -12,7 +11,7 @@ export interface User {
   email?: string;
   avatarUrl?: string;
   accounts: { provider: ProviderId; providerUserId: string }[];
-  /** 코디 추천용 신체·온도감 정보. 온보딩 전에는 없음 */
+  /** 옷차림 추천용 신체·온도감 정보. 온보딩 전에는 없음 */
   profile?: UserProfile;
   /** 프로필(키·몸무게·체형) 수집·이용 동의 시각 */
   profileConsentAt?: string;
@@ -31,113 +30,122 @@ export interface UserQuery {
   pageSize?: number;
 }
 
+interface Row {
+  id: string;
+  name: string;
+  email: string | null;
+  avatar_url: string | null;
+  status: UserStatus;
+  profile_json: string | null;
+  profile_consent_at: string | null;
+  admin_memo: string | null;
+  created_at: string;
+  last_login_at: string;
+}
+
 /**
- * MVP용 파일 기반 사용자 저장소. 운영 전환 시 DB(PostgreSQL 등)로 교체한다.
+ * SQLite 기반 사용자 저장소.
  * 가족 구성원·건강 정보는 서버에 저장하지 않는다 (기기에만 저장).
  */
 export class UserStore {
-  private users = new Map<string, User>();
-  private loaded = false;
-  private writing: Promise<void> = Promise.resolve();
+  constructor(private readonly db: DatabaseSync) {}
 
-  constructor(private readonly dir?: string) {}
-
-  private get file() {
-    return this.dir ? join(this.dir, 'users.json') : undefined;
+  private accountsOf(userId: string) {
+    return this.db
+      .prepare('SELECT provider, provider_user_id FROM user_accounts WHERE user_id = ?')
+      .all(userId)
+      .map((r) => {
+        const a = r as { provider: ProviderId; provider_user_id: string };
+        return { provider: a.provider, providerUserId: a.provider_user_id };
+      });
   }
 
-  private async load() {
-    if (this.loaded) return;
-    this.loaded = true;
-    if (!this.file) return;
-    try {
-      const list = JSON.parse(await readFile(this.file, 'utf8')) as User[];
-      for (const u of list) this.users.set(u.id, { ...u, status: u.status ?? 'active', lastLoginAt: u.lastLoginAt ?? u.createdAt });
-    } catch {
-      /* 최초 실행 */
-    }
-  }
-
-  /** 쓰기를 직렬화하고 임시 파일 → rename 으로 원자적으로 저장 */
-  private save() {
-    const file = this.file;
-    const dir = this.dir;
-    if (!file || !dir) return Promise.resolve();
-    const snapshot = JSON.stringify([...this.users.values()], null, 2);
-    this.writing = this.writing.then(async () => {
-      await mkdir(dir, { recursive: true });
-      await writeFile(`${file}.tmp`, snapshot);
-      await rename(`${file}.tmp`, file);
-    });
-    return this.writing;
+  private toUser(r: Row): User {
+    return {
+      id: r.id,
+      name: r.name,
+      email: r.email ?? undefined,
+      avatarUrl: r.avatar_url ?? undefined,
+      accounts: this.accountsOf(r.id),
+      profile: r.profile_json ? (JSON.parse(r.profile_json) as UserProfile) : undefined,
+      profileConsentAt: r.profile_consent_at ?? undefined,
+      status: r.status,
+      adminMemo: r.admin_memo ?? undefined,
+      createdAt: r.created_at,
+      lastLoginAt: r.last_login_at,
+    };
   }
 
   async upsertFromProfile(p: SocialProfile, now = new Date()): Promise<User> {
-    await this.load();
-    const existing = [...this.users.values()].find((u) =>
-      u.accounts.some((a) => a.provider === p.provider && a.providerUserId === p.providerUserId),
-    );
     const ts = now.toISOString();
-    const user: User = existing
-      ? {
-          ...existing,
-          name: existing.name || p.name,
-          email: p.email ?? existing.email,
-          avatarUrl: p.avatarUrl ?? existing.avatarUrl,
-          lastLoginAt: ts,
-        }
-      : {
-          id: randomUUID(),
-          name: p.name,
-          email: p.email,
-          avatarUrl: p.avatarUrl,
-          accounts: [{ provider: p.provider, providerUserId: p.providerUserId }],
-          status: 'active',
-          createdAt: ts,
-          lastLoginAt: ts,
-        };
-    this.users.set(user.id, user);
-    await this.save();
-    return user;
+    const link = this.db
+      .prepare('SELECT user_id FROM user_accounts WHERE provider = ? AND provider_user_id = ?')
+      .get(p.provider, p.providerUserId) as { user_id: string } | undefined;
+
+    if (link) {
+      this.db
+        .prepare('UPDATE users SET email = COALESCE(?, email), avatar_url = COALESCE(?, avatar_url), last_login_at = ? WHERE id = ?')
+        .run(p.email ?? null, p.avatarUrl ?? null, ts, link.user_id);
+      return (await this.get(link.user_id))!;
+    }
+
+    const id = randomUUID();
+    this.db
+      .prepare('INSERT INTO users (id, name, email, avatar_url, status, created_at, last_login_at) VALUES (?, ?, ?, ?, ?, ?, ?)')
+      .run(id, p.name, p.email ?? null, p.avatarUrl ?? null, 'active', ts, ts);
+    this.db
+      .prepare('INSERT INTO user_accounts (provider, provider_user_id, user_id) VALUES (?, ?, ?)')
+      .run(p.provider, p.providerUserId, id);
+    return (await this.get(id))!;
   }
 
   async get(id: string): Promise<User | undefined> {
-    await this.load();
-    return this.users.get(id);
+    const r = this.db.prepare('SELECT * FROM users WHERE id = ?').get(id) as Row | undefined;
+    return r ? this.toUser(r) : undefined;
   }
 
   async update(id: string, patch: Partial<Pick<User, 'name' | 'profile' | 'profileConsentAt' | 'status' | 'adminMemo'>>) {
-    await this.load();
-    const u = this.users.get(id);
+    const u = await this.get(id);
     if (!u) return undefined;
     const next = { ...u, ...patch };
-    this.users.set(id, next);
-    await this.save();
-    return next;
+    this.db
+      .prepare('UPDATE users SET name = ?, profile_json = ?, profile_consent_at = ?, status = ?, admin_memo = ? WHERE id = ?')
+      .run(next.name, next.profile ? JSON.stringify(next.profile) : null, next.profileConsentAt ?? null, next.status, next.adminMemo ?? null, id);
+    return this.get(id);
   }
 
   async delete(id: string): Promise<boolean> {
-    await this.load();
-    const ok = this.users.delete(id);
-    if (ok) await this.save();
-    return ok;
+    const r = this.db.prepare('DELETE FROM users WHERE id = ?').run(id);
+    return r.changes > 0;
   }
 
   async list(query: UserQuery = {}) {
-    await this.load();
-    const q = query.q?.trim().toLowerCase();
     const pageSize = Math.min(Math.max(query.pageSize ?? 20, 1), 100);
     const page = Math.max(query.page ?? 1, 1);
-    const all = [...this.users.values()]
-      .filter((u) => !q || u.name.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q) || u.id.startsWith(q))
-      .filter((u) => !query.provider || u.accounts.some((a) => a.provider === query.provider))
-      .filter((u) => !query.status || u.status === query.status)
-      .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-    return { total: all.length, page, pageSize, items: all.slice((page - 1) * pageSize, page * pageSize) };
+    const where: string[] = [];
+    const args: (string | number)[] = [];
+    if (query.q?.trim()) {
+      const q = `%${query.q.trim().toLowerCase()}%`;
+      where.push("(LOWER(name) LIKE ? OR LOWER(COALESCE(email, '')) LIKE ? OR id LIKE ?)");
+      args.push(q, q, `${query.q.trim()}%`);
+    }
+    if (query.provider) {
+      where.push('id IN (SELECT user_id FROM user_accounts WHERE provider = ?)');
+      args.push(query.provider);
+    }
+    if (query.status) {
+      where.push('status = ?');
+      args.push(query.status);
+    }
+    const w = where.length ? `WHERE ${where.join(' AND ')}` : '';
+    const total = (this.db.prepare(`SELECT COUNT(*) AS c FROM users ${w}`).get(...args) as { c: number }).c;
+    const rows = this.db
+      .prepare(`SELECT * FROM users ${w} ORDER BY created_at DESC LIMIT ? OFFSET ?`)
+      .all(...args, pageSize, (page - 1) * pageSize) as unknown as Row[];
+    return { total, page, pageSize, items: rows.map((r) => this.toUser(r)) };
   }
 
   async all(): Promise<User[]> {
-    await this.load();
-    return [...this.users.values()];
+    return (this.db.prepare('SELECT * FROM users ORDER BY created_at DESC').all() as unknown as Row[]).map((r) => this.toUser(r));
   }
 }

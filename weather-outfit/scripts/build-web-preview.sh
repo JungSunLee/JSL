@@ -10,9 +10,9 @@ API_URL="${3:-http://localhost:4000}"
 cd "$(dirname "$0")/../app"
 rm -rf "$OUT"
 if [ "$MODE" = "live" ]; then
-  EXPO_PUBLIC_API_URL="$API_URL" CI=1 npx expo export --platform web --output-dir "$OUT" >/dev/null
+  EXPO_PUBLIC_API_URL="$API_URL" CI=1 npx expo export --platform web --clear --output-dir "$OUT" >/dev/null
 else
-  EXPO_PUBLIC_DEMO=1 CI=1 npx expo export --platform web --output-dir "$OUT" >/dev/null
+  EXPO_PUBLIC_DEMO=1 CI=1 npx expo export --platform web --clear --output-dir "$OUT" >/dev/null
 fi
 cd "$OUT"
 # 번들 안의 절대 경로(/_expo, /assets)를 상대 경로로
