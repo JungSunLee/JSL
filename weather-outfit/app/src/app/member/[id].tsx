@@ -1,17 +1,15 @@
-import { ageOf, recommendOutfit, RELATION_LABEL, type OutfitSlot } from '@wo/core';
+import { recommendOutfit, RELATION_LABEL } from '@wo/core';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { ThicknessMeter } from '@/components/OutfitCard';
-import { OutfitFigure } from '@/components/OutfitFigure';
-import { Button, Card, Chip, SectionTitle } from '@/components/ui';
+import { OutfitItems } from '@/components/OutfitItems';
+import { Button, Card, SectionTitle } from '@/components/ui';
 import { colors } from '@/lib/theme';
 import { useOutfitMembers } from '@/state/useOutfitMembers';
 import { useWeather } from '@/state/useWeather';
 import { analytics } from '@/lib/analytics';
 import { useScreenView } from '@/lib/useScreenView';
 
-const SLOT_LABEL: Record<OutfitSlot, string> = { outer: '겉옷', top: '상의', bottom: '하의', shoes: '신발', accessory: '챙길 것' };
-const SLOTS: OutfitSlot[] = ['outer', 'top', 'bottom', 'shoes', 'accessory'];
 const LEVEL_BG = { info: '#EEF3FF', caution: '#FFF4E0', warning: '#FDECEF' } as const;
 
 export default function MemberDetail() {
@@ -58,23 +56,7 @@ export default function MemberDetail() {
 
       <SectionTitle>오늘 입을 옷</SectionTitle>
       <Card>
-        <View style={{ alignItems: 'center', marginBottom: 8 }}>
-          <OutfitFigure rec={rec} kid={ageOf(member.birthYear) < 13} size="lg" />
-        </View>
-        {SLOTS.map((slot) => {
-          const items = rec.items.filter((i) => i.slot === slot);
-          if (!items.length) return null;
-          return (
-            <View key={slot} style={s.slotRow}>
-              <Text style={s.slot}>{SLOT_LABEL[slot]}</Text>
-              <View style={s.chips}>
-                {items.map((i) => (
-                  <Chip key={i.category + i.name} label={i.name} tone="soft" />
-                ))}
-              </View>
-            </View>
-          );
-        })}
+        <OutfitItems rec={rec} />
         <View style={{ height: 8 }} />
         <Button
           title="🛍️ 추천 아이템 둘러보기"
@@ -105,8 +87,5 @@ const s = StyleSheet.create({
   feels: { fontSize: 15, color: colors.text, marginTop: 14, fontWeight: '600' },
   alert: { borderRadius: 12, padding: 12, marginBottom: 8 },
   alertText: { fontSize: 14, color: colors.text, lineHeight: 20 },
-  slotRow: { flexDirection: 'row', paddingVertical: 8, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.line },
-  slot: { width: 64, fontSize: 14, fontWeight: '700', color: colors.sub, paddingTop: 7 },
-  chips: { flex: 1, flexDirection: 'row', flexWrap: 'wrap' },
   reason: { fontSize: 14, color: colors.sub, lineHeight: 22 },
 });
