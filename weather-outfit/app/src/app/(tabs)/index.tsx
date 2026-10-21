@@ -86,7 +86,10 @@ export default function Today() {
             <WeatherScene sky={weather.sky} precip={weather.precipType} hour={hour} width={width} height={height} focusHeight={height * 0.4} hills={false} overlay style={s.scene} />
             <WeatherHero weather={weather} note={note} greeting={greeting(user?.name)} />
 
-            {/* 옷차림 추천: 날씨 바로 아래, 첫 화면 안에 보이도록 */}
+            {/* 시간별 날씨: 날씨 요약 바로 아래 */}
+            <HourlyStrip hours={weather.hourly.slice(0, 18)} />
+
+            {/* 옷차림 추천: 시간별 날씨 아래 */}
             <SectionTitle
               right={
                 members.length ? (
@@ -127,9 +130,6 @@ export default function Today() {
                 <Button title="가족 구성원 추가" variant="ghost" onPress={() => (analytics.tap('today', 'add_family_card'), router.push('/member/edit'))} />
               </Card>
             ) : null}
-
-            <SectionTitle>시간별 날씨</SectionTitle>
-            <HourlyStrip hours={weather.hourly.slice(0, 18)} />
 
             <SectionTitle>생활 지표</SectionTitle>
             <Indicators weather={weather} />

@@ -11,7 +11,7 @@ const slots = (r: ReturnType<typeof recommendOutfit>) => r.items.map((i) => i.ca
 describe('recommendOutfit', () => {
   it('15℃ 성인 → 자켓 단계, 기온·체감·개인 체감이 함께 나온다', () => {
     const r = recommendOutfit(base, adult, { now });
-    expect(r.thickness).toBe(3);
+    expect(r.thickness).toBe(6);
     expect(slots(r)).toContain('outer.jacket');
     expect(r.temp).toBe(15);
     expect(r.feelsLike).toBe(15);
@@ -23,8 +23,10 @@ describe('recommendOutfit', () => {
     expect(t(28).items.find((i) => i.slot === 'top')?.name).toContain('반팔');
     expect(t(22).items.find((i) => i.slot === 'top')?.name).toContain('얇은 셔츠');
     expect(t(13).items.find((i) => i.slot === 'outer')?.name).toContain('야상');
-    expect(t(4).thickness).toBe(4);
-    expect(t(1).thickness).toBe(5);
+    expect(t(4).thickness).toBe(9);
+    expect(t(1).thickness).toBe(10);
+    expect(t(19).thickness).toBe(5);
+    expect(t(21).thickness).toBe(4);
     expect(t(1).items.find((i) => i.slot === 'outer')?.name).toBe('패딩');
     expect(t(-2).items.find((i) => i.slot === 'outer')?.name).toContain('롱패딩');
   });
@@ -50,7 +52,7 @@ describe('recommendOutfit', () => {
 
   it('더위를 많이 타면 더 얇게', () => {
     const r = recommendOutfit(base, { ...adult, sensitivity: 2 }, { now });
-    expect(r.thickness).toBeLessThanOrEqual(2);
+    expect(r.thickness).toBeLessThanOrEqual(5);
   });
 
   it('영아는 한 겹 더 + 아이 전용 아이템', () => {
@@ -97,7 +99,7 @@ describe('recommendOutfit', () => {
 
   it('한파 + 영하 → 패딩, 목도리, 경고', () => {
     const r = recommendOutfit({ ...base, temp: -10, tempMin: -14, tempMax: -4, windSpeed: 5 }, adult, { now });
-    expect(r.thickness).toBe(5);
+    expect(r.thickness).toBe(10);
     expect(slots(r)).toEqual(expect.arrayContaining(['outer.padding', 'acc.scarfGloves']));
     expect(r.alerts.some((a) => a.level === 'warning')).toBe(true);
   });

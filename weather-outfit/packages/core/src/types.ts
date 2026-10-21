@@ -116,8 +116,8 @@ export interface OutfitRecommendation {
   feelsLike: number;
   /** 개인 보정 후 체감 온도 */
   personalFeelsLike: number;
-  /** 전체 두께 단계 1~5 */
-  thickness: 1 | 2 | 3 | 4 | 5;
+  /** 전체 두께 단계 1(아주 얇게)~10(아주 두껍게) */
+  thickness: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
   headline: string;
   items: OutfitItem[];
   alerts: CareAlert[];

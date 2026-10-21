@@ -8,23 +8,25 @@ import { useTone } from '@/lib/tone';
 
 const LEVEL_COLOR_LIGHT = { info: colors.primary, caution: colors.caution, warning: colors.warning } as const;
 const LEVEL_COLOR_DARK = { info: '#CFE1FF', caution: '#FFD9A0', warning: '#FFB3BE' } as const;
-const METER_LIGHT = ['', '#FFB547', '#7CC4A4', '#5B9BF8', '#4A6CF7', '#3343C9'];
-const METER_DARK = ['', '#FFD27A', '#A9E8CB', '#A9CBFF', '#C3CEFF', '#E3E6FF'];
+const LEVELS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+// 얇음(따뜻한 색) → 두꺼움(짙은 파랑)
+const METER_LIGHT = ['', '#FFB547', '#FFC56E', '#9BD4B5', '#7CC4A4', '#6FAEF9', '#5B9BF8', '#4F86F7', '#4A6CF7', '#3E55DD', '#3343C9'];
+const METER_DARK = ['', '#FFD27A', '#FFDC96', '#BDEBD3', '#A9E8CB', '#B9D6FF', '#A9CBFF', '#B5CBFF', '#C3CEFF', '#D3D8FF', '#E3E6FF'];
 
-/** 옷 두께 게이지: "옷 두께 · 보통 (3/5)" + 5칸 막대 */
+/** 옷 두께 게이지: "옷 두께 · 보통 (6/10)" + 10칸 막대 (기온 구간 13단계에 맞춘 세분화) */
 export function ThicknessMeter({ level }: { level: number }) {
   const t = useTone();
   const fill = (t.dark ? METER_DARK : METER_LIGHT)[level];
   return (
-    <View style={s.meter} accessibilityLabel={`옷 두께 ${THICKNESS_LABEL[level]}, 5단계 중 ${level}단계`}>
+    <View style={s.meter} accessibilityLabel={`옷 두께 ${THICKNESS_LABEL[level]}, 10단계 중 ${level}단계`}>
       <View style={s.meterHead}>
         <Text style={[s.meterTitle, { color: t.sub }]}>옷 두께</Text>
         <Text style={[s.meterValue, { color: t.text }]}>
-          {THICKNESS_LABEL[level]} <Text style={{ color: t.faint, fontWeight: '500' }}>({level}/5)</Text>
+          {THICKNESS_LABEL[level]} <Text style={{ color: t.faint, fontWeight: '500' }}>({level}/10)</Text>
         </Text>
       </View>
       <View style={s.meterRow}>
-        {[1, 2, 3, 4, 5].map((i) => (
+        {LEVELS.map((i) => (
           <View key={i} style={[s.meterBar, { backgroundColor: i <= level ? fill : t.line }]} />
         ))}
       </View>
@@ -131,7 +133,7 @@ const s = StyleSheet.create({
   meterHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 },
   meterTitle: { fontSize: 12, fontWeight: '600' },
   meterValue: { fontSize: 14, fontWeight: '700' },
-  meterRow: { flexDirection: 'row', gap: 4 },
+  meterRow: { flexDirection: 'row', gap: 3 },
   meterBar: { flex: 1, height: 6, borderRadius: 3 },
   alert: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8 },
   alertText: { fontSize: 13, fontWeight: '600', flex: 1 },

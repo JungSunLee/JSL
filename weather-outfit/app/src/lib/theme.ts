@@ -29,4 +29,4 @@ export function skyGradient(sky: Sky, precip: PrecipType, hour: number): [string
   return ['#2F80ED', '#7FC8FF'];
 }
 
-export const THICKNESS_LABEL = ['', '아주 얇게', '얇게', '보통', '두껍게', '아주 두껍게'] as const;
+export { THICKNESS_LABEL } from '@wo/core';

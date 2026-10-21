@@ -39,7 +39,7 @@ export function DayTimeline({ weather, member }: { weather: WeatherSnapshot; mem
     <View style={[s.card, { backgroundColor: t.card }]}>
       <View style={s.head}>
         <Text style={[s.title, { color: t.text }]}>{member.id === 'generic' ? '하루 옷차림 흐름' : `${member.name}의 하루 옷차림 흐름`}</Text>
-        <Text style={[s.hint, { color: t.sub }]}>{spread >= 1 ? '시간대별로 옷 두께가 달라요. 겉옷을 챙기세요' : '하루 종일 비슷하게 입으면 돼요'}</Text>
+        <Text style={[s.hint, { color: t.sub }]}>{spread >= 2 ? '시간대별로 옷 두께가 달라요. 겉옷을 챙기세요' : '하루 종일 비슷하게 입으면 돼요'}</Text>
       </View>
       <View style={s.row}>
         {points.map((p, i) => (
@@ -50,7 +50,7 @@ export function DayTimeline({ weather, member }: { weather: WeatherSnapshot; mem
             </View>
             <Text style={[s.temp, { color: t.text }]}>{Math.round(p.h.temp)}°</Text>
             <View style={s.meter}>
-              {[1, 2, 3, 4, 5].map((n) => (
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
                 <View key={n} style={[s.bar, { backgroundColor: n <= p.rec.thickness ? fill : t.line }]} />
               ))}
             </View>
@@ -78,7 +78,7 @@ const s = StyleSheet.create({
   slot: { fontSize: 12, fontWeight: '600' },
   temp: { fontSize: 20, fontWeight: '700', marginTop: 4 },
   meter: { flexDirection: 'row', marginTop: 6, gap: 2 },
-  bar: { width: 9, height: 5, borderRadius: 2 },
+  bar: { width: 7, height: 5, borderRadius: 2 },
   thick: { fontSize: 11, marginTop: 4 },
   outer: { fontSize: 11, textAlign: 'center', marginTop: 2, paddingHorizontal: 4 },
   arrow: { position: 'absolute', right: -7, top: 44 },

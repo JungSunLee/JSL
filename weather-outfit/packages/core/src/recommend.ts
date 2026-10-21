@@ -132,9 +132,11 @@ export function personalAdjustments(m: FamilyMember, baseFeels: number, now: Dat
   return adj;
 }
 
+type Thickness = OutfitRecommendation['thickness'];
+
 interface Tier {
   min: number; // 이 온도 이상
-  thickness: OutfitRecommendation['thickness'];
+  thickness: Thickness;
   headline: string;
   outer: OutfitItem | null;
   top: OutfitItem;
@@ -150,7 +152,7 @@ const item = (slot: OutfitItem['slot'], name: string, category: string, warmth: 
 });
 
 /**
- * 기온별 옷차림 단계표. 2~3℃ 간격으로 촘촘하게 나누고, 두께(1~5)는 5단계 게이지로 묶는다.
+ * 기온별 옷차림 단계표. 2~3℃ 간격으로 촘촘하게 나누고, 두께는 10단계 게이지(1 아주 얇게 ~ 10 아주 두껍게)로 표시한다.
  * (개인 체감온도 기준)
  */
 const TIERS: Tier[] = [
@@ -174,7 +176,7 @@ const TIERS: Tier[] = [
   },
   {
     min: 24,
-    thickness: 1,
+    thickness: 2,
     headline: '반팔이 딱 좋은 날',
     outer: null,
     top: item('top', '반팔 티셔츠', 'top.tshirt', 1),
@@ -183,7 +185,7 @@ const TIERS: Tier[] = [
   },
   {
     min: 22,
-    thickness: 2,
+    thickness: 3,
     headline: '반팔에 얇은 셔츠 하나',
     outer: null,
     top: item('top', '반팔 + 얇은 셔츠', 'top.longsleeve', 2),
@@ -192,7 +194,7 @@ const TIERS: Tier[] = [
   },
   {
     min: 20,
-    thickness: 2,
+    thickness: 4,
     headline: '얇은 긴팔로 가볍게',
     outer: null,
     top: item('top', '얇은 긴팔·블라우스', 'top.longsleeve', 2),
@@ -201,7 +203,7 @@ const TIERS: Tier[] = [
   },
   {
     min: 17,
-    thickness: 2,
+    thickness: 5,
     headline: '가디건 하나 걸치기 좋은 날',
     outer: item('outer', '얇은 가디건', 'outer.cardigan', 2),
     top: item('top', '맨투맨·얇은 니트', 'top.sweatshirt', 2),
@@ -210,7 +212,7 @@ const TIERS: Tier[] = [
   },
   {
     min: 14,
-    thickness: 3,
+    thickness: 6,
     headline: '자켓이 필요한 선선한 날',
     outer: item('outer', '자켓·바람막이', 'outer.jacket', 3),
     top: item('top', '맨투맨·니트', 'top.knit', 3),
@@ -219,7 +221,7 @@ const TIERS: Tier[] = [
   },
   {
     min: 12,
-    thickness: 3,
+    thickness: 7,
     headline: '야상·자켓에 니트를 받쳐 입는 날',
     outer: item('outer', '야상·자켓', 'outer.jacket', 3),
     top: item('top', '니트 + 얇은 이너', 'top.knit', 3),
@@ -228,7 +230,7 @@ const TIERS: Tier[] = [
   },
   {
     min: 9,
-    thickness: 3,
+    thickness: 7,
     headline: '트렌치코트가 어울리는 쌀쌀한 날',
     outer: item('outer', '트렌치코트·점퍼', 'outer.trench', 3),
     top: item('top', '니트·긴팔 + 얇은 이너', 'top.knit', 3),
@@ -237,7 +239,7 @@ const TIERS: Tier[] = [
   },
   {
     min: 6,
-    thickness: 4,
+    thickness: 8,
     headline: '코트와 히트텍을 챙기세요',
     outer: item('outer', '울 코트·경량패딩', 'outer.coat', 4),
     top: item('top', '히트텍 + 니트', 'top.thermal', 4),
@@ -246,7 +248,7 @@ const TIERS: Tier[] = [
   },
   {
     min: 3,
-    thickness: 4,
+    thickness: 9,
     headline: '두꺼운 코트나 패딩이 필요한 날',
     outer: item('outer', '두꺼운 코트·패딩', 'outer.coat', 4),
     top: item('top', '히트텍 + 두꺼운 니트', 'top.thermal', 4),
@@ -255,7 +257,7 @@ const TIERS: Tier[] = [
   },
   {
     min: 0,
-    thickness: 5,
+    thickness: 10,
     headline: '패딩 필수! 추운 날',
     outer: item('outer', '패딩', 'outer.padding', 5),
     top: item('top', '히트텍 + 두꺼운 니트', 'top.thermal', 5),
@@ -264,7 +266,7 @@ const TIERS: Tier[] = [
   },
   {
     min: -Infinity,
-    thickness: 5,
+    thickness: 10,
     headline: '롱패딩에 내복까지, 아주 추운 날',
     outer: item('outer', '롱패딩·두꺼운 패딩', 'outer.padding', 5),
     top: item('top', '내복 + 히트텍 + 두꺼운 니트', 'top.thermal', 5),
@@ -274,20 +276,23 @@ const TIERS: Tier[] = [
 ];
 
 /** 기온 구간 설명 (설정·도움말 화면용) */
-export const TIER_GUIDE: { range: string; thickness: 1 | 2 | 3 | 4 | 5; summary: string }[] = [
+/** 두께 단계(1~10) 이름 */
+export const THICKNESS_LABEL = ['', '아주 얇게', '아주 얇게', '얇게', '얇게', '보통', '보통', '조금 두껍게', '두껍게', '아주 두껍게', '아주 두껍게'] as const;
+
+export const TIER_GUIDE: { range: string; thickness: Thickness; summary: string }[] = [
   { range: '30℃ 이상', thickness: 1, summary: '민소매·린넨, 반바지, 샌들' },
   { range: '27~29℃', thickness: 1, summary: '반팔·린넨 셔츠, 반바지' },
-  { range: '24~26℃', thickness: 1, summary: '반팔, 얇은 면바지' },
-  { range: '22~23℃', thickness: 2, summary: '반팔 + 얇은 셔츠' },
-  { range: '20~21℃', thickness: 2, summary: '얇은 긴팔·블라우스' },
-  { range: '17~19℃', thickness: 2, summary: '얇은 가디건, 맨투맨' },
-  { range: '14~16℃', thickness: 3, summary: '자켓·바람막이, 니트' },
-  { range: '12~13℃', thickness: 3, summary: '야상·자켓 + 니트' },
-  { range: '9~11℃', thickness: 3, summary: '트렌치코트·점퍼' },
-  { range: '6~8℃', thickness: 4, summary: '울 코트·경량패딩 + 히트텍' },
-  { range: '3~5℃', thickness: 4, summary: '두꺼운 코트·패딩, 기모' },
-  { range: '0~2℃', thickness: 5, summary: '패딩, 히트텍, 내복' },
-  { range: '0℃ 미만', thickness: 5, summary: '롱패딩, 내복, 방한 부츠' },
+  { range: '24~26℃', thickness: 2, summary: '반팔, 얇은 면바지' },
+  { range: '22~23℃', thickness: 3, summary: '반팔 + 얇은 셔츠' },
+  { range: '20~21℃', thickness: 4, summary: '얇은 긴팔·블라우스' },
+  { range: '17~19℃', thickness: 5, summary: '얇은 가디건, 맨투맨' },
+  { range: '14~16℃', thickness: 6, summary: '자켓·바람막이, 니트' },
+  { range: '12~13℃', thickness: 7, summary: '야상·자켓 + 니트' },
+  { range: '9~11℃', thickness: 7, summary: '트렌치코트·점퍼' },
+  { range: '6~8℃', thickness: 8, summary: '울 코트·경량패딩 + 히트텍' },
+  { range: '3~5℃', thickness: 9, summary: '두꺼운 코트·패딩, 기모' },
+  { range: '0~2℃', thickness: 10, summary: '패딩, 히트텍, 내복' },
+  { range: '0℃ 미만', thickness: 10, summary: '롱패딩, 내복, 방한 부츠' },
 ];
 
 export function tierFor(temp: number): Tier {
@@ -298,18 +303,18 @@ export function tierFor(temp: number): Tier {
 function adaptForAge(items: OutfitItem[], group: AgeGroup, thickness: number): OutfitItem[] {
   if (group === 'infant') {
     return items.map((it) => {
-      if (it.slot === 'outer' && thickness >= 4) return { ...it, name: '방한 우주복·겉싸개', category: 'kids.bunting' };
-      if (it.slot === 'top') return { ...it, name: thickness >= 3 ? '내복 + 긴팔 바디슈트' : '면 바디슈트', category: 'kids.bodysuit' };
-      if (it.slot === 'bottom') return { ...it, name: thickness >= 3 ? '도톰한 레깅스' : '면 레깅스', category: 'kids.leggings' };
-      if (it.slot === 'shoes') return { ...it, name: thickness >= 4 ? '털 덧신' : '양말·걸음마 신발', category: 'kids.socks' };
+      if (it.slot === 'outer' && thickness >= 8) return { ...it, name: '방한 우주복·겉싸개', category: 'kids.bunting' };
+      if (it.slot === 'top') return { ...it, name: thickness >= 6 ? '내복 + 긴팔 바디슈트' : '면 바디슈트', category: 'kids.bodysuit' };
+      if (it.slot === 'bottom') return { ...it, name: thickness >= 6 ? '도톰한 레깅스' : '면 레깅스', category: 'kids.leggings' };
+      if (it.slot === 'shoes') return { ...it, name: thickness >= 8 ? '털 덧신' : '양말·걸음마 신발', category: 'kids.socks' };
       return it;
     });
   }
   if (group === 'toddler' || group === 'child') {
     return items.map((it) => {
-      if (it.slot === 'top' && thickness >= 4) return { ...it, name: '내복 + 기모 맨투맨', category: 'kids.thermal' };
-      if (it.slot === 'top' && thickness <= 1) return { ...it, name: '땀 흡수 잘되는 면 반팔', category: 'kids.tshirt' };
-      if (it.slot === 'shoes' && thickness <= 1) return { ...it, name: '아쿠아슈즈·샌들', category: 'kids.sandals' };
+      if (it.slot === 'top' && thickness >= 8) return { ...it, name: '내복 + 기모 맨투맨', category: 'kids.thermal' };
+      if (it.slot === 'top' && thickness <= 2) return { ...it, name: '땀 흡수 잘되는 면 반팔', category: 'kids.tshirt' };
+      if (it.slot === 'shoes' && thickness <= 2) return { ...it, name: '아쿠아슈즈·샌들', category: 'kids.sandals' };
       return { ...it, category: it.category.replace(/^(\w+)\./, 'kids.$1.') };
     });
   }
@@ -434,7 +439,7 @@ export function recommendOutfit(
 
   // 바람
   if (weather.windSpeed >= 9) {
-    if (!has(items, 'jacket') && tier.thickness <= 3)
+    if (!has(items, 'jacket') && tier.thickness <= 7)
       accessories.push(item('accessory', '바람막이', 'outer.windbreaker', 2));
     alerts.push({
       level: weather.windSpeed >= 14 ? 'warning' : 'caution',
@@ -473,7 +478,7 @@ export function recommendOutfit(
   if (member.bodyTempC != null && member.bodyTempC >= 38) {
     alerts.unshift({ level: 'warning', icon: '🤒', message: `체온 ${member.bodyTempC}℃ — 오늘은 외출보다 휴식을 권해요` });
   }
-  if (isKid && tier.thickness >= 3) {
+  if (isKid && tier.thickness >= 6) {
     reasons.push('아이는 활동량이 많아요 — 벗고 입기 쉬운 겹쳐 입기를 추천해요');
   }
 
