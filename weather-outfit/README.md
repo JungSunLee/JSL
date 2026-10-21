@@ -22,7 +22,8 @@
 - [01. 시장·경쟁 조사](docs/01-market-research.md)
 - [02. 서비스 기획서](docs/02-product-plan.md)
 - [03. 실제 서비스 연결 가이드](docs/03-setup-keys.md): 공공데이터·카카오·네이버·구글 키 발급, GitHub 보안, 서버 배포
-- [04. 앱 이름 후보](docs/04-naming.md)
+- [04. 앱 이름](docs/04-naming.md)
+- [05. 경쟁 앱과 차별화 포인트](docs/05-differentiation.md)
 
 ## 폴더 구조
 

@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 import { useMemo } from 'react';
 import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { DayTimeline } from '@/components/DayTimeline';
 import { HourlyStrip } from '@/components/HourlyStrip';
 import { Indicators } from '@/components/Indicators';
 import { OutfitGate } from '@/components/LoginPrompt';
@@ -60,8 +61,7 @@ export default function Today() {
         contentContainerStyle={s.scroll}
         refreshControl={<RefreshControl refreshing={loading} onRefresh={() => (analytics.tap('today', 'refresh'), refresh())} />}
       >
-        <Text style={s.greet}>{greeting(user?.name)}</Text>
-        <WeatherHero weather={weather} note={note} />
+        <WeatherHero weather={weather} note={note} greeting={greeting(user?.name)} />
 
         {/* 옷차림 추천: 날씨 바로 아래, 첫 화면 안에 보이도록 */}
         <SectionTitle
@@ -76,14 +76,16 @@ export default function Today() {
           {members.length > 1 ? WORDING.familyToday : WORDING.today}
         </SectionTitle>
         <OutfitGate />
-        {recs.map(({ member, rec }) => (
-          <OutfitCard
-            key={member.id}
-            member={member}
-            rec={rec}
-            onPress={() => (analytics.tap('today', 'outfit_card', { relation: member.relation }), router.push(`/member/${member.id}`))}
-            onEdit={() => (analytics.tap('today', 'edit_member'), router.push(member.relation === 'me' ? '/onboarding' : { pathname: '/member/edit', params: { id: member.id } }))}
-          />
+        {recs.map(({ member, rec }, i) => (
+          <View key={member.id}>
+            <OutfitCard
+              member={member}
+              rec={rec}
+              onPress={() => (analytics.tap('today', 'outfit_card', { relation: member.relation }), router.push(`/member/${member.id}`))}
+              onEdit={() => (analytics.tap('today', 'edit_member'), router.push(member.relation === 'me' ? '/onboarding' : { pathname: '/member/edit', params: { id: member.id } }))}
+            />
+            {i === 0 ? <DayTimeline weather={weather} member={member} /> : null}
+          </View>
         ))}
         {members.length === 1 ? (
           <Card>
@@ -107,8 +109,7 @@ export default function Today() {
 
 const s = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.bg },
-  scroll: { padding: 16, paddingBottom: 40 },
-  greet: { fontSize: 20, fontWeight: '800', color: colors.text, marginBottom: 10, marginTop: 2 },
+  scroll: { padding: 16, paddingTop: 8, paddingBottom: 40 },
   link: { color: colors.primary, fontSize: 15, fontWeight: '600' },
   emptyTitle: { fontSize: 17, fontWeight: '700', color: colors.text },
   emptyBody: { fontSize: 14, color: colors.sub, marginVertical: 10, lineHeight: 21 },

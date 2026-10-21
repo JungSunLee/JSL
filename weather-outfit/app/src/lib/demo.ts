@@ -23,8 +23,26 @@ async function save(me: Me | null) {
   else await AsyncStorage.removeItem(KEY);
 }
 
+/**
+ * 데모 날씨 장면 미리보기용: 웹에서 ?scene=rain|snow|cloudy|night|clear 로 날씨를 바꿔 볼 수 있다.
+ */
+function sceneOverride(): Partial<WeatherSnapshot> {
+  if (typeof window === 'undefined') return {};
+  const q = new URLSearchParams(window.location.search).get('scene') ?? (() => { try { return window.sessionStorage.getItem('demo.scene'); } catch { return null; } })();
+  if (!q) return {};
+  try { window.sessionStorage.setItem('demo.scene', q); } catch { /* ignore */ }
+  switch (q) {
+    case 'rain': return { sky: 'cloudy', precipType: 'rain', precipProbMax: 80, temp: 9, tempMin: 7, tempMax: 12, windSpeed: 7 };
+    case 'snow': return { sky: 'cloudy', precipType: 'snow', precipProbMax: 70, temp: -3, tempMin: -6, tempMax: 1 };
+    case 'cloudy': return { sky: 'cloudy', precipType: 'none' };
+    case 'hot': return { sky: 'clear', precipType: 'none', temp: 31, tempMin: 25, tempMax: 33, uvIndex: 8, humidity: 70 };
+    case 'night': return { sky: 'clear', precipType: 'none' };
+    default: return {};
+  }
+}
+
 export const demoApi = {
-  weather: async (): Promise<WeatherSnapshot> => ({ ...mockWeather(), locationName: '성남시 중원구 중앙동 (데모)' }),
+  weather: async (): Promise<WeatherSnapshot> => ({ ...mockWeather(), locationName: '성남시 중원구 중앙동 (데모)', ...sceneOverride() }),
   providers: async () => (['kakao', 'naver', 'google'] as ProviderId[]).map((id) => ({ id, enabled: true })),
   me: async () => {
     const me = await load();
@@ -45,3 +63,14 @@ export const demoApi = {
   },
   deleteMe: () => save(null),
 };
+
+/** 데모 장면 미리보기용 시각(0~23). ?scene=night 이면 22시로 본다 */
+export function demoHour(): number | null {
+  if (!DEMO_MODE || typeof window === 'undefined') return null;
+  try {
+    const q = new URLSearchParams(window.location.search).get('scene') ?? window.sessionStorage.getItem('demo.scene');
+    return q === 'night' ? 22 : null;
+  } catch {
+    return null;
+  }
+}

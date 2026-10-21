@@ -22,6 +22,6 @@ find _expo -name 'entry-*.js' -exec sed -i.bak 's#url:location.origin+location.p
 # index.html: 문서 기준 <base>를 심고, 라우터가 "/"에서 시작하도록 주소를 바꾼 뒤 번들을 읽는다
 # (로그인 팝업 창(window.opener 있음)은 돌아온 주소(/auth#token=...)를 그대로 둬야 로그인이 완료된다)
 sed -i.bak 's#src="/_expo/#src="_expo/#g; s#href="/favicon.ico"#href="favicon.ico"#g' index.html
-sed -i.bak 's#<head>#<head><script>document.write(\x27<base href="\x27+location.href.replace(/[?\#].*$/,"").replace(/[^/]*$/,"")+\x27">\x27);if(!window.opener){try{history.replaceState(null,"","/"+location.hash)}catch(e){}}</script>#' index.html
+sed -i.bak 's#<head>#<head><script>document.write(\x27<base href="\x27+location.href.replace(/[?\#].*$/,"").replace(/[^/]*$/,"")+\x27">\x27);if(!window.opener){try{history.replaceState(null,"","/"+location.search+location.hash)}catch(e){}}</script>#' index.html
 rm -f index.html.bak metadata.json
 echo "web preview ($MODE): $OUT"
