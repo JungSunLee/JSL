@@ -1,6 +1,6 @@
 import cors from '@fastify/cors';
 import fastifyStatic from '@fastify/static';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import Fastify from 'fastify';
 import { createProviders, type OAuthProvider, type ProviderId } from './auth/providers';
@@ -24,6 +24,7 @@ export interface BuildOptions {
   dbFile?: string;
   logger?: boolean;
   adminDist?: string;
+  webDist?: string;
 }
 
 export function buildApp(opts: BuildOptions) {
@@ -33,7 +34,19 @@ export function buildApp(opts: BuildOptions) {
 
   const weather = createWeatherService({ config, fetch: opts.fetch, now: opts.now, log: app.log });
 
-  app.get('/health', async () => ({ ok: true, live: !!config.dataGoKrKey }));
+  // 상태 확인: 배포 플랫폼의 헬스체크와 "DB가 준비됐는지" 확인에 쓴다
+  app.get('/health', async (_req, reply) => {
+    let dbOk = false;
+    let users = 0;
+    try {
+      users = Number((db.prepare('SELECT COUNT(*) AS n FROM users').get() as { n: number }).n);
+      dbOk = true;
+    } catch {
+      dbOk = false;
+    }
+    const body = { ok: dbOk, live: !!config.dataGoKrKey, db: { ok: dbOk, file: dbFile, users }, devLogin: config.allowDevLogin, version: process.env.APP_VERSION ?? 'dev' };
+    return reply.code(dbOk ? 200 : 500).send(body);
+  });
 
   app.get<{ Querystring: { lat?: string; lon?: string; name?: string } }>('/v1/weather', async (req, reply) => {
     const lat = Number(req.query.lat);
@@ -53,7 +66,8 @@ export function buildApp(opts: BuildOptions) {
   });
 
   const tokens = new Tokens(config.jwtSecret);
-  const db = openDatabase(opts.dbFile ?? resolve(config.dataDir, 'app.db'));
+  const dbFile = opts.dbFile ?? resolve(config.dataDir, 'app.db');
+  const db = openDatabase(dbFile);
   const users = new UserStore(db);
   const events = new EventStore(db);
   app.addHook('onClose', async () => db.close());
@@ -73,6 +87,21 @@ export function buildApp(opts: BuildOptions) {
       await scope.register(fastifyStatic, { root: adminDist, prefix: '/admin/' });
       scope.get('/admin', (_req, reply) => reply.redirect('/admin/'));
     });
+  }
+
+  // 앱 웹 버전 정적 파일 (expo export 결과가 있을 때만). / 에서 서비스하고,
+  // 파일이 아닌 주소(/login, /onboarding, /auth ...)는 index.html 로 보내 앱 라우터가 처리한다.
+  const webDist = resolve(opts.webDist ?? config.webDist ?? '../app/dist-web');
+  if (existsSync(resolve(webDist, 'index.html'))) {
+    app.register(async (scope) => {
+      await scope.register(fastifyStatic, { root: webDist, prefix: '/', wildcard: false, decorateReply: false });
+      scope.get('/*', async (req, reply) => {
+        const url = req.url.split('?')[0];
+        if (url.startsWith('/v1/') || url.startsWith('/admin') || url === '/health') return reply.code(404).send({ error: 'not_found' });
+        return reply.type('text/html; charset=utf-8').send(readFileSync(resolve(webDist, 'index.html')));
+      });
+    });
+    app.log.info(`앱 웹 버전 서비스 중: ${webDist}`);
   }
 
   return app;

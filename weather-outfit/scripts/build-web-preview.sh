@@ -3,6 +3,7 @@
 # 사용: scripts/build-web-preview.sh <출력 폴더> [demo|live] [서버 주소]
 #   demo : 서버 없이 예시 날씨 + 즉시 로그인 (기본)
 #   live : PC에서 켠 API 서버(기본 http://localhost:4000)의 실제 날씨 + 테스트 로그인
+#   deploy : 서버와 같은 주소에서 서비스되는 웹 버전 (API 주소를 상대 경로로) — Docker 배포용
 set -euo pipefail
 OUT="${1:?출력 폴더를 지정하세요}"
 MODE="${2:-demo}"
@@ -11,6 +12,8 @@ cd "$(dirname "$0")/../app"
 rm -rf "$OUT"
 if [ "$MODE" = "live" ]; then
   EXPO_PUBLIC_API_URL="$API_URL" CI=1 npx expo export --platform web --clear --output-dir "$OUT" >/dev/null
+elif [ "$MODE" = "deploy" ]; then
+  EXPO_PUBLIC_API_URL="/" CI=1 npx expo export --platform web --clear --output-dir "$OUT" >/dev/null
 else
   EXPO_PUBLIC_DEMO=1 CI=1 npx expo export --platform web --clear --output-dir "$OUT" >/dev/null
 fi
@@ -22,6 +25,11 @@ find _expo -name 'entry-*.js' -exec sed -i.bak 's#url:location.origin+location.p
 # index.html: 문서 기준 <base>를 심고, 라우터가 "/"에서 시작하도록 주소를 바꾼 뒤 번들을 읽는다
 # (로그인 팝업 창(window.opener 있음)은 돌아온 주소(/auth#token=...)를 그대로 둬야 로그인이 완료된다)
 sed -i.bak 's#src="/_expo/#src="_expo/#g; s#href="/favicon.ico"#href="favicon.ico"#g' index.html
-sed -i.bak 's#<head>#<head><script>document.write(\x27<base href="\x27+location.href.replace(/[?\#].*$/,"").replace(/[^/]*$/,"")+\x27">\x27);if(!window.opener){try{history.replaceState(null,"","/"+location.search+location.hash)}catch(e){}}</script>#' index.html
+if [ "$MODE" = "deploy" ]; then
+  # 배포: 서버 루트(/)에서 서비스하므로 <base href="/"> 만 심는다 (/login 같은 주소를 그대로 두어야 앱 라우터가 처리)
+  sed -i.bak 's#<head>#<head><base href="/">#' index.html
+else
+  sed -i.bak 's#<head>#<head><script>document.write(\x27<base href="\x27+location.href.replace(/[?\#].*$/,"").replace(/[^/]*$/,"")+\x27">\x27);if(!window.opener){try{history.replaceState(null,"","/"+location.search+location.hash)}catch(e){}}</script>#' index.html
+fi
 rm -f index.html.bak metadata.json
 echo "web preview ($MODE): $OUT"

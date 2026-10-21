@@ -4,3 +4,4 @@ server/env.local.txt
 server/data/
 *.log
 admin/dist/
+app/dist-web/

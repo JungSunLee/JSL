@@ -37,7 +37,7 @@ export default function Today() {
   useScreenView('today');
   const { user } = useAuth();
   const members = useOutfitMembers();
-  const { weather, loading, offline, usingDefaultLocation, refresh } = useWeather();
+  const { weather, loading, offline, usingDefaultLocation, updatedAt, refresh } = useWeather();
   const { width, height } = useWindowDimensions();
   const hour = demoHour() ?? new Date().getHours();
 
@@ -84,7 +84,7 @@ export default function Today() {
           >
             {/* 살아 움직이는 날씨 장면: 첫 화면 높이만큼, 내용과 함께 스크롤되어 올라간다 */}
             <WeatherScene sky={weather.sky} precip={weather.precipType} hour={hour} width={width} height={height} focusHeight={height * 0.4} hills={false} overlay style={s.scene} />
-            <WeatherHero weather={weather} note={note} greeting={greeting(user?.name)} />
+            <WeatherHero weather={weather} note={note} greeting={greeting(user?.name)} updatedAt={updatedAt} gps={!usingDefaultLocation && !DEMO_MODE} />
 
             {/* 시간별 날씨: 날씨 요약 바로 아래 */}
             <HourlyStrip hours={weather.hourly.slice(0, 18)} />

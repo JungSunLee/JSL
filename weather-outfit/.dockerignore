@@ -1,0 +1,12 @@
+node_modules
+**/node_modules
+.git
+docs
+*.log
+server/data
+server/env.local.txt
+.env
+admin/dist
+app/dist-web
+app/.expo
+RQTV

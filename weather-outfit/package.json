@@ -16,6 +16,9 @@
     "build:admin": "npm run build -w admin",
     "preview:demo": "scripts/build-web-preview.sh /tmp/weatherfit-preview demo && node scripts/serve-preview.mjs /tmp/weatherfit-preview demo",
     "preview:live": "scripts/build-web-preview.sh /tmp/weatherfit-preview live && node scripts/serve-preview.mjs /tmp/weatherfit-preview live",
-    "update": "scripts/update.sh"
+    "update": "scripts/update.sh",
+    "build:web": "scripts/build-web-preview.sh app/dist-web deploy",
+    "build:all": "npm run build:admin && npm run build:web",
+    "start": "npm run start -w server"
   }
 }

@@ -15,7 +15,12 @@ import { demoHour } from '@/lib/demo';
  * 첫 화면 상단(투명). 날씨 장면은 화면 전체 배경으로 깔리므로 여기서는 글자와 칩만 올린다.
  * 위치·인사 → 큰 기온·하늘 상태 → 최저/최고·체감·일교차 → 미세먼지·자외선·강수·바람 칩.
  */
-export function WeatherHero({ weather: w, note, greeting }: { weather: WeatherSnapshot; note?: string; greeting?: string }) {
+function ago(d: Date, now = new Date()): string {
+  const m = Math.max(0, Math.round((now.getTime() - d.getTime()) / 60_000));
+  return m < 1 ? '방금 업데이트' : m < 60 ? `${m}분 전 업데이트` : `${Math.floor(m / 60)}시간 전 업데이트`;
+}
+
+export function WeatherHero({ weather: w, note, greeting, updatedAt, gps }: { weather: WeatherSnapshot; note?: string; greeting?: string; updatedAt?: Date | null; gps?: boolean }) {
   const hour = demoHour() ?? new Date().getHours();
   const night = hour >= 19 || hour < 6;
   const feels = feelsLike(w.temp, w.humidity, w.windSpeed);
@@ -34,6 +39,8 @@ export function WeatherHero({ weather: w, note, greeting }: { weather: WeatherSn
           <View style={s.locRow}>
             <Icons.MapPin size={14} color="rgba(255,255,255,0.9)" weight="fill" />
             <Text style={s.location} numberOfLines={1}>{w.locationName}</Text>
+            {gps ? <Text style={s.gps}>GPS</Text> : null}
+            {updatedAt ? <Text style={s.updated}>· {ago(updatedAt)}</Text> : null}
           </View>
         </View>
       </View>
@@ -81,7 +88,9 @@ const s = StyleSheet.create({
   top: { flexDirection: 'row', alignItems: 'flex-start' },
   greet: { color: 'rgba(255,255,255,0.95)', fontSize: 15, fontWeight: '700', marginBottom: 4, ...shadow },
   locRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  location: { color: 'rgba(255,255,255,0.9)', fontSize: 13, fontWeight: '600', ...shadow },
+  location: { color: 'rgba(255,255,255,0.9)', fontSize: 13, fontWeight: '600', flexShrink: 1, ...shadow },
+  gps: { color: '#FFFFFF', fontSize: 9, fontWeight: '800', backgroundColor: 'rgba(255,255,255,0.22)', paddingHorizontal: 5, paddingVertical: 1, borderRadius: 4, overflow: 'hidden', marginLeft: 2 },
+  updated: { color: 'rgba(255,255,255,0.75)', fontSize: 12, marginLeft: 2, ...shadow },
   main: { flexDirection: 'row', alignItems: 'center', marginTop: 10 },
   temp: { color: '#fff', fontSize: 88, fontWeight: '200', letterSpacing: -4, lineHeight: 96, ...shadow },
   side: { marginLeft: 12, alignItems: 'flex-start', gap: 4 },

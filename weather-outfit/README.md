@@ -143,3 +143,12 @@ npx eas-cli@latest submit --platform ios|android
 npm test          # 추천 엔진 30개 + 서버 19개
 npm run typecheck
 ```
+
+## 인터넷 배포
+
+서버·관리자·앱 웹 버전을 한 Docker 이미지로 배포합니다. 단계별 안내: [`docs/06-deploy.md`](docs/06-deploy.md)
+
+```bash
+npm run build:all   # 관리자 홈페이지 + 앱 웹 버전 빌드
+NODE_ENV=production npm start   # 서버 실행 (/, /admin, /v1, /health)
+```

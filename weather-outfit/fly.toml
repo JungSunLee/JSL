@@ -1,0 +1,29 @@
+# Fly.io 배포 설정 (대안). weather-outfit 폴더에서: fly launch --no-deploy → fly volumes create data --size 1 → fly deploy
+app = "nalssi-server"
+primary_region = "nrt"   # 도쿄 (한국과 가장 가까움)
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  NODE_ENV = "production"
+  PORT = "4000"
+  DATA_DIR = "/data"
+  ALLOW_DEV_LOGIN = "true"
+
+[[mounts]]
+  source = "data"
+  destination = "/data"
+
+[http_service]
+  internal_port = 4000
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+
+  [[http_service.checks]]
+    interval = "30s"
+    timeout = "5s"
+    method = "GET"
+    path = "/health"
