@@ -16,7 +16,7 @@ import { DEMO_MODE } from '@/lib/demo';
 import { colors } from '@/lib/theme';
 import { useScreenView } from '@/lib/useScreenView';
 import { useAuth } from '@/state/AuthContext';
-import { useOutfitMembers } from '@/state/useOutfitMembers';
+import { GENERIC_MEMBER, useOutfitMembers } from '@/state/useOutfitMembers';
 import { useWeather } from '@/state/useWeather';
 
 function greeting(name?: string) {
@@ -35,6 +35,8 @@ export default function Today() {
     () => (weather ? members.map((m) => ({ member: m, rec: recommendOutfit(weather, m) })) : []),
     [weather, members],
   );
+  // 로그인·프로필 전에는 성인 평균 기준으로 먼저 보여준다
+  const generic = useMemo(() => (weather && members.length === 0 ? recommendOutfit(weather, GENERIC_MEMBER) : null), [weather, members.length]);
 
   if (!weather) {
     return (
@@ -75,6 +77,12 @@ export default function Today() {
         >
           {members.length > 1 ? WORDING.familyToday : WORDING.today}
         </SectionTitle>
+        {generic ? (
+          <>
+            <OutfitCard member={GENERIC_MEMBER} rec={generic} subtitle="성인 평균 기준" />
+            <DayTimeline weather={weather} member={GENERIC_MEMBER} />
+          </>
+        ) : null}
         <OutfitGate />
         {recs.map(({ member, rec }, i) => (
           <View key={member.id}>

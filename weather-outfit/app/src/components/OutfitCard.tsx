@@ -25,21 +25,24 @@ export function OutfitCard({
   rec,
   onPress,
   onEdit,
+  subtitle,
 }: {
   member: FamilyMember;
   rec: OutfitRecommendation;
   onPress?: () => void;
   /** 구성원 정보(온도감·체형 등) 바로 수정 */
   onEdit?: () => void;
+  /** 관계 표시 대신 보여줄 짧은 설명 (예: "성인 평균 기준") */
+  subtitle?: string;
 }) {
   const topAlert = rec.alerts.find((a) => a.level === 'warning') ?? rec.alerts[0];
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => [s.card, pressed && { opacity: 0.85 }]} accessibilityRole="button">
+    <Pressable onPress={onPress} disabled={!onPress} style={({ pressed }) => [s.card, pressed && onPress && { opacity: 0.85 }]} accessibilityRole={onPress ? 'button' : undefined}>
       <View style={s.header}>
         <Text style={s.avatar}>{member.emoji ?? '🙂'}</Text>
         <View style={{ flex: 1 }}>
           <Text style={s.name}>
-            {member.name} <Text style={s.rel}>{RELATION_LABEL[member.relation]}</Text>
+            {member.name} <Text style={s.rel}>{subtitle ?? RELATION_LABEL[member.relation]}</Text>
           </Text>
           <Text style={s.headline}>{rec.headline}</Text>
         </View>

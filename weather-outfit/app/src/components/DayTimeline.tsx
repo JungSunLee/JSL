@@ -34,7 +34,7 @@ export function DayTimeline({ weather, member }: { weather: WeatherSnapshot; mem
   return (
     <View style={s.card}>
       <View style={s.head}>
-        <Text style={s.title}>{member.name}의 하루 옷차림 흐름</Text>
+        <Text style={s.title}>{member.id === 'generic' ? '하루 옷차림 흐름' : `${member.name}의 하루 옷차림 흐름`}</Text>
         <Text style={s.hint}>{spread >= 1 ? '시간대별로 옷 두께가 달라요 — 겉옷을 챙기세요' : '하루 종일 비슷하게 입으면 돼요'}</Text>
       </View>
       <View style={s.row}>
