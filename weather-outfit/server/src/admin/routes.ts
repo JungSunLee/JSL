@@ -3,6 +3,7 @@ import type { Config } from '../config';
 import { PROVIDERS, type ProviderId } from '../auth/providers';
 import type { Tokens } from '../auth/tokens';
 import type { User, UserStatus, UserStore } from '../auth/users';
+import type { EventStore } from '../analytics/events';
 import { LoginLimiter, safeEqual } from './password';
 
 const DAY = 24 * 3600_000;
@@ -58,8 +59,8 @@ export function computeStats(users: User[], now = new Date()) {
   };
 }
 
-export function registerAdminRoutes(app: FastifyInstance, deps: { config: Config; tokens: Tokens; users: UserStore }) {
-  const { config, tokens, users } = deps;
+export function registerAdminRoutes(app: FastifyInstance, deps: { config: Config; tokens: Tokens; users: UserStore; events: EventStore }) {
+  const { config, tokens, users, events } = deps;
   const limiter = new LoginLimiter();
 
   app.post<{ Body: { email?: string; password?: string } }>('/v1/admin/login', async (req, reply) => {
@@ -88,7 +89,7 @@ export function registerAdminRoutes(app: FastifyInstance, deps: { config: Config
   app.register(async (admin) => {
     admin.addHook('preHandler', requireAdmin);
 
-    admin.get('/v1/admin/stats', async () => computeStats(await users.all()));
+    admin.get('/v1/admin/stats', async () => ({ ...computeStats(await users.all()), usage: events.stats() }));
 
     admin.get<{ Querystring: { q?: string; provider?: string; status?: string; page?: string; pageSize?: string } }>(
       '/v1/admin/users',

@@ -43,14 +43,14 @@ function fakeUpstream(calls: string[]) {
 
 describe('GET /v1/weather', () => {
   it('서비스키가 없으면 데모 데이터', async () => {
-    const app = buildApp({ config: loadConfig({}), now });
+    const app = buildApp({ config: loadConfig({}), now, dbFile: ':memory:' });
     const res = await app.inject('/v1/weather?lat=37.56&lon=126.97');
     expect(res.statusCode).toBe(200);
     expect(res.json().isMock).toBe(true);
   });
 
   it('한국 밖 좌표는 400', async () => {
-    const app = buildApp({ config: loadConfig({}), now });
+    const app = buildApp({ config: loadConfig({}), now, dbFile: ':memory:' });
     expect((await app.inject('/v1/weather?lat=40.7&lon=-74')).statusCode).toBe(400);
   });
 
@@ -60,6 +60,7 @@ describe('GET /v1/weather', () => {
       config: loadConfig({ DATA_GO_KR_SERVICE_KEY: 'k', KAKAO_REST_API_KEY: 'kk' }),
       fetch: fakeUpstream(calls),
       now,
+      dbFile: ':memory:',
     });
     const res = await app.inject('/v1/weather?lat=37.5636&lon=126.9826');
     expect(res.statusCode).toBe(200);
@@ -88,7 +89,7 @@ describe('GET /v1/weather', () => {
     const base = fakeUpstream(calls);
     const f = (async (input: string | URL | Request, init?: RequestInit) =>
       String(input).includes('B552584') ? new Response('boom', { status: 500 }) : base(input, init)) as typeof fetch;
-    const app = buildApp({ config: loadConfig({ DATA_GO_KR_SERVICE_KEY: 'k' }), fetch: f, now });
+    const app = buildApp({ config: loadConfig({ DATA_GO_KR_SERVICE_KEY: 'k' }), fetch: f, now, dbFile: ':memory:' });
     const res = await app.inject('/v1/weather?lat=37.56&lon=126.97');
     expect(res.statusCode).toBe(200);
     expect(res.json().pm25).toBeNull();

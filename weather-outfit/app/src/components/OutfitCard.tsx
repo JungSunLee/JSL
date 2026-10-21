@@ -24,10 +24,13 @@ export function OutfitCard({
   member,
   rec,
   onPress,
+  onEdit,
 }: {
   member: FamilyMember;
   rec: OutfitRecommendation;
   onPress?: () => void;
+  /** 구성원 정보(온도감·체형 등) 바로 수정 */
+  onEdit?: () => void;
 }) {
   const topAlert = rec.alerts.find((a) => a.level === 'warning') ?? rec.alerts[0];
   return (
@@ -40,7 +43,14 @@ export function OutfitCard({
           </Text>
           <Text style={s.headline}>{rec.headline}</Text>
         </View>
-        <Text style={s.feels}>{Math.round(rec.personalFeelsLike)}°</Text>
+        <View style={{ alignItems: 'flex-end' }}>
+          <Text style={s.feels}>{Math.round(rec.personalFeelsLike)}°</Text>
+          {onEdit ? (
+            <Pressable onPress={onEdit} hitSlop={8} accessibilityRole="button" accessibilityLabel={`${member.name} 정보 수정`}>
+              <Text style={s.edit}>정보 수정</Text>
+            </Pressable>
+          ) : null}
+        </View>
       </View>
       <ThicknessMeter level={rec.thickness} />
       <View style={s.items}>
@@ -66,6 +76,7 @@ const s = StyleSheet.create({
   rel: { fontSize: 13, fontWeight: '400', color: colors.faint },
   headline: { fontSize: 14, color: colors.sub, marginTop: 2 },
   feels: { fontSize: 22, fontWeight: '700', color: colors.primary },
+  edit: { fontSize: 12, color: colors.faint, textDecorationLine: 'underline', marginTop: 2 },
   meterRow: { flexDirection: 'row', alignItems: 'center', marginTop: 12, marginBottom: 10 },
   meterBar: { flex: 1, height: 6, borderRadius: 3, backgroundColor: colors.line, marginRight: 4 },
   meterLabel: { fontSize: 12, color: colors.sub, marginLeft: 6, width: 64 },

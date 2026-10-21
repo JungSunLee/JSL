@@ -5,6 +5,9 @@ import { resolve } from 'node:path';
 import Fastify from 'fastify';
 import { createProviders, type OAuthProvider, type ProviderId } from './auth/providers';
 import { registerAdminRoutes } from './admin/routes';
+import { EventStore } from './analytics/events';
+import { registerAnalyticsRoutes } from './analytics/routes';
+import { openDatabase } from './db';
 import { registerAuthRoutes } from './auth/routes';
 import { Tokens } from './auth/tokens';
 import { UserStore } from './auth/users';
@@ -17,7 +20,8 @@ export interface BuildOptions {
   fetch?: FetchLike;
   now?: () => Date;
   providers?: Record<ProviderId, OAuthProvider>;
-  users?: UserStore;
+  /** 기본값: config.dataDir/app.db. 테스트는 ':memory:' */
+  dbFile?: string;
   logger?: boolean;
   adminDist?: string;
 }
@@ -49,9 +53,13 @@ export function buildApp(opts: BuildOptions) {
   });
 
   const tokens = new Tokens(config.jwtSecret);
-  const users = opts.users ?? new UserStore(config.dataDir);
+  const db = openDatabase(opts.dbFile ?? resolve(config.dataDir, 'app.db'));
+  const users = new UserStore(db);
+  const events = new EventStore(db);
+  app.addHook('onClose', async () => db.close());
   registerAuthRoutes(app, { config, providers: opts.providers ?? createProviders(config, opts.fetch), tokens, users });
-  registerAdminRoutes(app, { config, tokens, users });
+  registerAnalyticsRoutes(app, { tokens, events });
+  registerAdminRoutes(app, { config, tokens, users, events });
 
   // 관리자 홈페이지 정적 파일 (admin 빌드 결과가 있을 때만)
   const adminDist = resolve(opts.adminDist ?? process.env.ADMIN_DIST ?? '../admin/dist');

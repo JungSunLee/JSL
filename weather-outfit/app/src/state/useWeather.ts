@@ -2,6 +2,7 @@ import { mockWeather, type WeatherSnapshot } from '@wo/core';
 import * as Location from 'expo-location';
 import { createContext, createElement, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { api } from '@/lib/api';
+import { useSettings } from './SettingsContext';
 
 /** 위치 권한이 없거나 못 가져올 때 쓰는 기본 지역 */
 export const DEFAULT_LOCATION = { latitude: 37.4386, longitude: 127.1527, name: '성남시 중원구 중앙동' };
@@ -15,7 +16,8 @@ interface WeatherState {
   refresh(): Promise<void>;
 }
 
-async function currentCoords(): Promise<{ coords: { latitude: number; longitude: number }; fallback: boolean }> {
+async function currentCoords(useCurrent: boolean): Promise<{ coords: { latitude: number; longitude: number }; fallback: boolean }> {
+  if (!useCurrent) return { coords: DEFAULT_LOCATION, fallback: true };
   try {
     const { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== 'granted') return { coords: DEFAULT_LOCATION, fallback: true };
@@ -36,10 +38,12 @@ export function WeatherProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [offline, setOffline] = useState(false);
   const [usingDefaultLocation, setDefault] = useState(false);
+  const { settings, ready: settingsReady } = useSettings();
+  const useCurrent = settings.useCurrentLocation;
 
   const refresh = useCallback(async () => {
     setLoading(true);
-    const { coords, fallback } = await currentCoords();
+    const { coords, fallback } = await currentCoords(useCurrent);
     setDefault(fallback);
     try {
       setWeather(await api.weather(coords.latitude, coords.longitude, fallback ? DEFAULT_LOCATION.name : undefined));
@@ -50,11 +54,11 @@ export function WeatherProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [useCurrent]);
 
   useEffect(() => {
-    refresh();
-  }, [refresh]);
+    if (settingsReady) refresh();
+  }, [refresh, settingsReady]);
 
   const value = useMemo(
     () => ({ weather, loading, offline, usingDefaultLocation, refresh }),

@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import { buildApp } from '../src/app';
 import { loadConfig } from '../src/config';
 import type { OAuthProvider, ProviderId } from '../src/auth/providers';
-import { UserStore } from '../src/auth/users';
 
 const fake = (id: ProviderId, enabled = true): OAuthProvider => ({
   id,
@@ -14,11 +13,11 @@ const fake = (id: ProviderId, enabled = true): OAuthProvider => ({
   },
 });
 
-function setup(users = new UserStore()) {
+function setup() {
   return buildApp({
     config: loadConfig({ PUBLIC_BASE_URL: 'https://api.example', APP_REDIRECT_ALLOWLIST: 'weatherfit://' }),
     providers: { naver: fake('naver'), kakao: fake('kakao'), google: fake('google', false), dev: fake('dev', false) },
-    users,
+    dbFile: ':memory:',
   });
 }
 
@@ -114,11 +113,11 @@ describe('profile onboarding', () => {
 });
 
 describe('admin', () => {
-  function adminApp(users = new UserStore()) {
+  function adminApp() {
     return buildApp({
       config: loadConfig({ PUBLIC_BASE_URL: 'https://api.example', APP_REDIRECT_ALLOWLIST: 'weatherfit://', ADMIN_EMAIL: 'admin@example.com', ADMIN_PASSWORD: 'secret-password' }),
       providers: { naver: fake('naver'), kakao: fake('kakao'), google: fake('google'), dev: fake('dev') },
-      users,
+      dbFile: ':memory:',
     });
   }
   async function adminToken(app: ReturnType<typeof adminApp>) {
@@ -194,5 +193,29 @@ describe('CORS', () => {
     });
     expect(res.headers['access-control-allow-methods']).toContain('PUT');
     expect(res.headers['access-control-allow-methods']).toContain('DELETE');
+  });
+});
+
+describe('usage events', () => {
+  it('익명·로그인 사용자 로그를 저장하고 DAU/MAU·인기 버튼을 집계한다', async () => {
+    const app = buildApp({
+      config: loadConfig({ PUBLIC_BASE_URL: 'https://api.example', APP_REDIRECT_ALLOWLIST: 'weatherfit://', ADMIN_EMAIL: 'admin@example.com', ADMIN_PASSWORD: 'secret-password' }),
+      providers: { naver: fake('naver'), kakao: fake('kakao'), google: fake('google'), dev: fake('dev') },
+      dbFile: ':memory:',
+    });
+    const send = (deviceId: string, events: unknown[], token?: string) =>
+      app.inject({ method: 'POST', url: '/v1/events', headers: token ? { authorization: `Bearer ${token}` } : {}, payload: { deviceId, platform: 'ios', appVersion: '0.2.0', events } });
+
+    expect((await send('dev-1', [{ name: 'screen_view', screen: 'today' }, { name: 'tap', screen: 'today', target: 'login_button' }])).statusCode).toBe(204);
+    const t = tokenOf(await login(app, 'kakao'));
+    expect((await send('dev-2', [{ name: 'tap', screen: 'today', target: 'login_button' }, { name: 'bad name!', screen: 'x' }], t)).statusCode).toBe(204);
+    // 잘못된 본문도 앱을 막지 않는다
+    expect((await app.inject({ method: 'POST', url: '/v1/events', payload: { nope: 1 } })).statusCode).toBe(204);
+
+    const adminTok = (await app.inject({ method: 'POST', url: '/v1/admin/login', payload: { email: 'admin@example.com', password: 'secret-password' } })).json().token;
+    const stats = (await app.inject({ url: '/v1/admin/stats', headers: { authorization: `Bearer ${adminTok}` } })).json();
+    expect(stats.usage).toMatchObject({ dau: 2, mau: 2, totalEvents: 3 });
+    expect(stats.usage.topTaps[0]).toEqual({ screen: 'today', target: 'login_button', count: 2 });
+    expect(stats.usage.dauByDay).toHaveLength(14);
   });
 });

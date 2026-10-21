@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { api, BODY_LABEL, PROVIDER_LABEL, SENS_LABEL, type Stats } from '../api';
+import { api, BODY_LABEL, label, PROVIDER_LABEL, SCREEN_LABEL, SENS_LABEL, TARGET_LABEL, type Stats } from '../api';
 
 function Tile({ label, value, sub }: { label: string; value: number | string; sub?: string }) {
   return (
@@ -11,8 +11,8 @@ function Tile({ label, value, sub }: { label: string; value: number | string; su
   );
 }
 
-/** 단일 계열 세로 막대: 최근 14일 가입자 */
-function DailyBars({ data }: { data: { date: string; count: number }[] }) {
+/** 단일 계열 세로 막대 (최근 14일) */
+function DailyBars({ data, unit = '명', ariaLabel }: { data: { date: string; count: number }[]; unit?: string; ariaLabel: string }) {
   const [hover, setHover] = useState<number | null>(null);
   const max = Math.max(1, ...data.map((d) => d.count));
   const W = 640;
@@ -23,7 +23,7 @@ function DailyBars({ data }: { data: { date: string; count: number }[] }) {
   const ticks = [0, Math.ceil(max / 2), max].filter((v, i, a) => a.indexOf(v) === i);
   return (
     <div className="chart">
-      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="최근 14일 일별 가입자 수">
+      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={ariaLabel}>
         {ticks.map((t) => (
           <g key={t}>
             <line x1={pad.l} x2={W - pad.r} y1={y(t)} y2={y(t)} className="grid" />
@@ -52,7 +52,7 @@ function DailyBars({ data }: { data: { date: string; count: number }[] }) {
       </svg>
       {hover !== null ? (
         <div className="tooltip" style={{ left: `${((pad.l + (hover + 0.5) * bw) / W) * 100}%` }}>
-          <b>{data[hover].count}명</b> · {data[hover].date}
+          <b>{data[hover].count}{unit}</b> · {data[hover].date}
         </div>
       ) : null}
     </div>
@@ -60,12 +60,13 @@ function DailyBars({ data }: { data: { date: string; count: number }[] }) {
 }
 
 /** 단일 계열 가로 막대 (분포) */
-function HBars({ title, rows }: { title: string; rows: { label: string; value: number }[] }) {
+function HBars({ title, rows, empty }: { title: string; rows: { label: string; value: number }[]; empty?: string }) {
   const max = Math.max(1, ...rows.map((r) => r.value));
   const total = rows.reduce((s, r) => s + r.value, 0);
   return (
     <div className="card">
       <h3>{title}</h3>
+      {rows.length === 0 && empty ? <p className="muted">{empty}</p> : null}
       {rows.map((r) => (
         <div key={r.label} className="hrow" title={`${r.label}: ${r.value}명`}>
           <span className="hlabel">{r.label}</span>
@@ -91,9 +92,27 @@ export function Dashboard() {
   if (err) return <p className="error">{err}</p>;
   if (!s) return <p className="muted">불러오는 중…</p>;
   const pct = (n: number) => (s.totalUsers ? `${Math.round((n / s.totalUsers) * 100)}%` : '-');
+  const u = s.usage;
   return (
     <>
       <h1>대시보드</h1>
+      <h2 className="section">사용 현황</h2>
+      <div className="tiles">
+        <Tile label="오늘 사용자 (DAU)" value={u.dau} sub="오늘 앱을 연 기기 수" />
+        <Tile label="주간 사용자 (WAU)" value={u.wau} sub="최근 7일" />
+        <Tile label="월간 사용자 (MAU)" value={u.mau} sub="최근 30일" />
+        <Tile label="누적 로그" value={u.totalEvents.toLocaleString()} sub="화면 보기·버튼 누름 등" />
+      </div>
+      <div className="card">
+        <h3>일별 사용자 (최근 14일)</h3>
+        <DailyBars data={u.dauByDay} ariaLabel="최근 14일 일별 사용자 수" />
+      </div>
+      <div className="cols2">
+        <HBars title="많이 누른 버튼 (7일)" rows={u.topTaps.map((t) => ({ label: `${label(SCREEN_LABEL, t.screen)} · ${label(TARGET_LABEL, t.target)}`, value: t.count }))} empty="아직 기록된 클릭이 없어요" />
+        <HBars title="많이 본 화면 (7일)" rows={u.topScreens.map((t) => ({ label: label(SCREEN_LABEL, t.screen), value: t.count }))} empty="아직 기록된 화면 보기가 없어요" />
+      </div>
+
+      <h2 className="section">회원</h2>
       <div className="tiles">
         <Tile label="전체 회원" value={s.totalUsers.toLocaleString()} sub={`정지 ${s.suspended}명`} />
         <Tile label="오늘 가입" value={s.newToday} sub={`최근 7일 ${s.new7d}명`} />
@@ -102,7 +121,7 @@ export function Dashboard() {
       </div>
       <div className="card">
         <h3>일별 가입자 (최근 14일)</h3>
-        <DailyBars data={s.signupsByDay} />
+        <DailyBars data={s.signupsByDay} ariaLabel="최근 14일 일별 가입자 수" />
       </div>
       <div className="cols3">
         <HBars title="로그인 방식" rows={(Object.keys(PROVIDER_LABEL) as (keyof typeof PROVIDER_LABEL)[]).filter((k) => k !== 'dev' || s.byProvider.dev).map((k) => ({ label: PROVIDER_LABEL[k], value: s.byProvider[k] ?? 0 }))} />

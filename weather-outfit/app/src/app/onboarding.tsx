@@ -16,6 +16,8 @@ import { Button, Chip } from '@/components/ui';
 import { ApiError } from '@/lib/api';
 import { colors, radius } from '@/lib/theme';
 import { useAuth } from '@/state/AuthContext';
+import { analytics } from '@/lib/analytics';
+import { useScreenView } from '@/lib/useScreenView';
 
 const BODY_TYPES: { id: BodyType; emoji: string }[] = [
   { id: 'slim', emoji: '🧍' },
@@ -33,8 +35,9 @@ const SENS: { v: ThermalSensitivity; emoji: string }[] = [
 const ACTIVITIES = Object.keys(ACTIVITY_LABEL) as Activity[];
 const SEXES = Object.keys(SEX_LABEL) as Sex[];
 
-/** 로그인 직후 1회 + 설정에서 수정. 코디 추천에 쓰는 본인 정보 */
+/** 로그인 직후 1회 + 설정에서 수정. 옷차림 추천에 쓰는 본인 정보 */
 export default function Onboarding() {
+  useScreenView('onboarding');
   const { user, ready } = useAuth();
   if (!ready) return <ActivityIndicator style={{ marginTop: 40 }} />;
   if (!user) return <Redirect href="/login" />;
@@ -78,6 +81,7 @@ function ProfileForm({ initial, initialName, firstTime }: { initial: UserProfile
         { birthYear: by, sex, heightCm: h, weightKg: w, bodyType: bodyType!, sensitivity: sensitivity!, activity },
         { consent: true, name: name.trim() || undefined },
       );
+      analytics.event(firstTime ? 'onboarding_complete' : 'profile_updated', 'onboarding');
       if (router.canGoBack()) router.back();
       else router.replace('/');
     } catch (err) {
@@ -96,7 +100,7 @@ function ProfileForm({ initial, initialName, firstTime }: { initial: UserProfile
         {firstTime ? (
           <View style={s.intro}>
             <Text style={s.introTitle}>반가워요! 👋</Text>
-            <Text style={s.introBody}>같은 날씨도 사람마다 다르게 느껴요.{'\n'}몇 가지만 알려주시면 나에게 맞는 코디를 추천해 드릴게요.</Text>
+            <Text style={s.introBody}>같은 날씨도 사람마다 다르게 느껴요.{'\n'}몇 가지만 알려주시면 나에게 맞는 옷차림를 추천해 드릴게요.</Text>
           </View>
         ) : null}
 
@@ -165,14 +169,14 @@ function ProfileForm({ initial, initialName, firstTime }: { initial: UserProfile
           <Pressable onPress={() => setConsent(!consent)} style={s.consent} accessibilityRole="checkbox" accessibilityState={{ checked: consent }}>
             <Text style={s.check}>{consent ? '☑️' : '⬜️'}</Text>
             <Text style={s.consentText}>
-              [필수] 키·몸무게·체형·온도감 정보를 코디 추천 목적으로 수집·이용하는 데 동의합니다. 정보는 탈퇴 시 즉시 삭제됩니다.
+              [필수] 키·몸무게·체형·온도감 정보를 옷차림 추천 목적으로 수집·이용하는 데 동의합니다. 정보는 탈퇴 시 즉시 삭제됩니다.
             </Text>
           </Pressable>
         ) : null}
         <Err k="consent" />
 
         <View style={{ height: 20 }} />
-        <Button title={saving ? '저장 중…' : firstTime ? '코디 추천 시작하기' : '저장'} onPress={submit} disabled={saving} />
+        <Button title={saving ? '저장 중…' : firstTime ? '옷차림 추천 시작하기' : '저장'} onPress={submit} disabled={saving} />
       </ScrollView>
     </KeyboardAvoidingView>
   );
