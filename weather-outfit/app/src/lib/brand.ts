@@ -1,7 +1,7 @@
 import Constants from 'expo-constants';
 
-/** 앱 이름(가칭). 확정되면 여기와 app.json 의 name 만 바꾸면 된다. */
-export const APP_NAME = Constants.expoConfig?.name ?? '우리집 옷날씨';
+/** 앱 이름. app.json 의 name 과 같게 유지한다. */
+export const APP_NAME = Constants.expoConfig?.name ?? '날씨를 입다';
 
 export const APP_VERSION = Constants.expoConfig?.version ?? '0.0.0';
 

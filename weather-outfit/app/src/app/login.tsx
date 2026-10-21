@@ -61,7 +61,7 @@ export default function Login() {
       </Pressable>
       <View style={s.brand}>
         <Text style={s.logo}>🌤️👕</Text>
-        <Text style={s.title}>우리집 옷날씨</Text>
+        <Text style={s.title}>날씨를 입다</Text>
         <Text style={s.subtitle}>로그인하면 내 체형과 온도감에 맞춘{'\n'}오늘 입을 옷을 추천해 드려요</Text>
       </View>
       <View>

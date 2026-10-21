@@ -29,7 +29,7 @@ export function Splash({ visible }: { visible: boolean }) {
         <Animated.Text style={[s.logo, { transform: [{ scale: pop }] }]}>🌤️</Animated.Text>
         <Animated.View style={{ transform: [{ translateY: rise }], alignItems: 'center' }}>
           <Text style={s.title}>{APP_NAME}</Text>
-          <Text style={s.sub}>오늘 날씨에 딱 맞는 옷차림</Text>
+          <Text style={s.sub}>오늘 날씨에 딱 맞는 우리 가족 옷차림</Text>
         </Animated.View>
       </LinearGradient>
     </Animated.View>

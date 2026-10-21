@@ -7,6 +7,7 @@
 
 ## 프로젝트
 - `weather-outfit/`: 날씨 기반 가족 코디 추천 앱 (Expo 앱, Fastify 서버, 관리자 홈페이지, 공용 추천 엔진). 자세한 실행 방법은 `weather-outfit/README.md`.
+- 앱 이름: **날씨를 입다** (2026-10-21 확정)
 - `RQTV/`, `ReadyQTV_final/`(옛 안드로이드 프로젝트)는 2026-10 사용자 요청으로 삭제했다. 과거 커밋 `fdebe43`에 남아 있다.
 
 ## Git
